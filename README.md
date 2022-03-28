@@ -87,21 +87,10 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 ## Contact
 
 - [Discord](https://discord.gg/A75DHMzU)
-  - [Twiter](https://twitter.com/adamnitehq)
-  - [Reddit](https://www.reddit.com/r/AdamniteHq/)
+- [Twiter](https://twitter.com/adamnitehq)
+- [Reddit](https://www.reddit.com/r/AdamniteHq/)
 
 Github Organisation: [https://github.com/Adamnite](https://github.com/Adamnite)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-<style>
-body {
-   background-color: #1D1E2D;
-   color: #9FA1B9;
-   font-family: Montserrat-Regular,sans-serif;
-   font-style: normal;
-   font-weight: 300;
-   font-size: 24px;
-}
-</style>
 </body>
