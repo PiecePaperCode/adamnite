@@ -1,9 +1,9 @@
 import random
 import unittest
 
-from adamnite.merkle_tree import merkle_tree, hash_sha256
-from adamnite import serialization
-from adamnite.transactions import Transaction
+from src.adamnite import serialization
+from src.adamnite.merkle_tree import hash_sha256, merkle_tree
+from src.adamnite.transactions import Transaction
 
 
 class MerkleTree(unittest.TestCase):
