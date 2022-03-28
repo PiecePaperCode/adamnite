@@ -1,9 +1,9 @@
 import datetime
 import unittest
 
-from src.adamnite import serialization
-from src.adamnite.block import Block
-from src.adamnite.transactions import Transaction
+from adamnite import serialization
+from adamnite.block import Block
+from adamnite.transactions import Transaction
 
 
 class TestSerialization(unittest.TestCase):

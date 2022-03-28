@@ -1,6 +1,6 @@
 import unittest
 
-from src.adamnite.block import Block
+from adamnite.block import Block
 
 
 class TestBlock(unittest.TestCase):
