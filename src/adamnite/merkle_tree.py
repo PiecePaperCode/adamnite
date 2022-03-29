@@ -2,7 +2,7 @@ import hashlib
 
 
 # https://en.wikipedia.org/wiki/Merkle_tree#/media/File:Hash_Tree.svg
-def merkle_tree(data_blocks):
+def merkle_tree(data_blocks: list):
     root: [bytes] = [
         hash_sha256(of=item)
         for item in data_blocks
@@ -21,6 +21,7 @@ def merkle_tree(data_blocks):
 
 
 def hash_sha256(of: bytes):
+    assert isinstance(of, bytes)
     return bytes(hashlib.sha256(of).digest())
 
 

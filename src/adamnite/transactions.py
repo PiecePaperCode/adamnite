@@ -4,12 +4,12 @@ import time
 class Transaction:
     def __init__(
             self,
-            sender: str = None,
-            receiver: str = None,
-            amount: int = 0,
+            sender: str = 'sender',
+            receiver: str = 'receiver',
+            amount: int = 1,
             fee: int = 0,
-            message: str = None,
-            signature: str = None,
+            message: str = 'message',
+            signature: str = 'signature',
     ):
         self.sender = sender
         self.receiver = receiver
@@ -18,4 +18,4 @@ class Transaction:
         self.message = message
         self.signature = signature
         self.timestamp: int = int(time.time())
-        self.hash = hash(self)
+        self.hash = 55
