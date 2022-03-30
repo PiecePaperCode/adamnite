@@ -41,11 +41,11 @@ class MerkleTree(unittest.TestCase):
                 for _ in range(0, 99)
             ]
             transactions = [
-                bytes(str(serialization.json(transaction)), "utf-8")
+                serialization.serialize(transaction)
                 for transaction in transactions
             ]
             return transactions
         self.assertNotEqual(
-            create_random_transactions(),
-            create_random_transactions()
+            merkle_tree(create_random_transactions()),
+            merkle_tree(create_random_transactions()),
         )

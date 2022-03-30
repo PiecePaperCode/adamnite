@@ -1,39 +1,7 @@
 from typing import Literal, Union
 
 
-class Serializable:
-    def serialize(self):
-        class Serialize:
-            pass
-
-        for name, value in vars(self).items():
-            setattr(Serialize, name, value)
-        return to_bytes_object(Serialize)
-
-    def deserialize(self, b: bytes):
-        class Deserialize:
-            pass
-
-        for name, value in vars(self).items():
-            setattr(Deserialize, name, value)
-        block, read = from_bytes_object(b, Deserialize)
-        for name, value in vars(block).items():
-            if name.startswith('__'):
-                continue
-            setattr(self, name, value)
-
-
-def json(to_serialize) -> dict:
-    dictionary = {}
-    for name, value in vars(to_serialize).items():
-        if name.startswith('__'):
-            continue
-        if isinstance(value, (str, int, float, list, dict)):
-            dictionary.update({name: value})
-    return dictionary
-
-
-def to_bytes_object(to: Union[str, int, list, type]) -> bytes:
+def serialize(to: Union[str, int, list, type, object]) -> bytes:
     types_conversion: {object: object} = {
         bytes: to_bytes,
         str: to_string,
@@ -78,9 +46,9 @@ def to_list(to: Union[list, tuple]) -> bytes:
     b = bytes()
     b += to_number(len(to))
     for item in to:
-        size = len(to_bytes_object(item))
+        size = len(serialize(item))
         b += to_number(size)
-        b += to_bytes_object(item)
+        b += serialize(item)
     return b
 
 
@@ -90,12 +58,14 @@ def to_class(to: object):
         if name.startswith('__'):
             continue
         if isinstance(value, (str, int, list, dict)):
-            b += to_bytes_object(value)
+            b += serialize(value)
     return b
 
 
-def from_bytes_object(from_: bytes, to: Union[str, int, list, type]) -> (
-object, int):
+def deserialize(
+        from_: bytes,
+        to: Union[str, int, list, type, object],
+) -> (object, int):
     types_conversion: {type: object} = {
         bytes: from_bytes,
         str: from_string,
@@ -135,12 +105,15 @@ def from_number(from_: bytes, to: int) -> (str, int):
 def from_list(from_: bytes, to: Union[list, tuple]):
     list_array = []
     len_list, read = from_number(from_, int())
+    item_type = to[0]
+    if isinstance(item_type, type):
+        item_type = item_type()
     pointer = read
     for i in range(len_list):
         len_list_item, read = from_number(from_[pointer:], int())
         pointer += read
-        list_item, read = from_bytes_object(
-            from_[pointer:pointer + len_list_item], to[0])
+        list_item, read = deserialize(
+            from_[pointer: pointer + len_list_item], item_type)
         pointer += read
         list_array.append(list_item)
     assert len_list == len(list_array)
@@ -149,11 +122,33 @@ def from_list(from_: bytes, to: Union[list, tuple]):
 
 def from_class(from_: bytes, to: object) -> (object, int):
     pointer = 0
+    assert hasattr(to, "__dict__"), TypeError(f"{to} is not initiated")
     for name, value in vars(to).items():
         if name.startswith('__'):
             continue
-        print(name, value, type(value))
-        obj, read = from_bytes_object(from_[pointer:], value)
+        obj, read = deserialize(from_[pointer:], value)
         setattr(to, name, obj)
         pointer += read
     return to, pointer
+
+
+class Serializable:
+    def serialize(self):
+        class Serialize:
+            pass
+
+        for name, value in vars(self).items():
+            setattr(Serialize, name, value)
+        return serialize(Serialize)
+
+    def deserialize(self, b: bytes):
+        class Deserialize:
+            pass
+
+        for name, value in vars(self).items():
+            setattr(Deserialize, name, value)
+        block, read = deserialize(b, Deserialize)
+        for name, value in vars(block).items():
+            if name.startswith('__'):
+                continue
+            setattr(self, name, value)
