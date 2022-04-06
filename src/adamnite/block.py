@@ -5,6 +5,7 @@ from adamnite.account import Account
 from adamnite.tree import hash_sha512, merkle_tree
 from adamnite.serialization import Serializable, serialize
 from adamnite.transactions import Transaction
+import blockchain utils
 
 
 class Block(Serializable):
@@ -56,7 +57,7 @@ class Block(Serializable):
             witnesses = self.witnesses
             transactions_root = self.transactions_root
 
-        self.block_hash = hash_sha512(BlockHash().serialize())
+        self.block_hash = hashing(BlockHash().serialize())
         return self.block_hash
 
     def valid(self):
