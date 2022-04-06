@@ -1,7 +1,7 @@
 import time
 import unittest
-from typing import List
 
+from typing import List
 from adamnite import serialization
 from adamnite.transactions import Transaction
 
