@@ -18,4 +18,4 @@ class Transaction:
         self.message = message
         self.signature = signature
         self.timestamp: int = int(time.time())
-        self.hash = 55
+        self.hash = b"55"

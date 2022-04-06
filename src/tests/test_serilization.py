@@ -3,8 +3,6 @@ import unittest
 from typing import List
 
 from adamnite import serialization
-from adamnite.block import Block
-from adamnite.serialization import INT_SIZE
 from adamnite.transactions import Transaction
 
 
@@ -12,19 +10,19 @@ class TestSerializationJSON(unittest.TestCase):
     class CustomClass:
         string = "string"
         number = 123
-        list = ["string", "string", "string2"]
+        list = ["list0", "list1", "list2"]
         # tuple = ("string", "string", "string2")
         timestamp = int(time.time())
-        bytes = b"123"
+        bytes = b"12345"
         string2 = "string2"
 
     def test_serialize_primitive(self):
-        bytes_string = serialization.serialize(b"12")
+        bytes_string = serialization.serialize(b"12345")
         restored_class, read = serialization.deserialize(
             bytes_string,
             to=bytes()
         )
-        self.assertEqual(restored_class, "123")
+        self.assertEqual(restored_class, b"12345")
 
     def test_serialize_custom_class(self):
         bytes_class = serialization.serialize(self.CustomClass)
@@ -46,7 +44,7 @@ class TestSerializationJSON(unittest.TestCase):
         bytes_class = serialization.serialize(transactions)
         restored_class, read = serialization.deserialize(
             bytes_class,
-            to=list([Transaction])
+            to=[Transaction()]
         )
         self.assertEqual(restored_class[0].sender, Transaction().sender)
         self.assertEqual(len(restored_class), 3)

@@ -1,7 +1,10 @@
 from typing import Literal, Union
 
 
-def serialize(to: Union[str, int, list, type, object]) -> bytes:
+SUPPORTED_TYPES = (bytes, str, int, list, type, object)
+
+
+def serialize(to: Union[SUPPORTED_TYPES]) -> bytes:
     types_conversion: {object: object} = {
         bytes: to_bytes,
         str: to_string,
@@ -23,7 +26,7 @@ def to_bytes(to: bytes) -> bytes:
     b += to_number(len(to))
     b += to
     assert len(b) == len(to) + INT_SIZE
-    return to
+    return b
 
 
 BYTE_ORDER: Literal["little", "big"] = "big"
@@ -31,8 +34,7 @@ ENCODING = "utf-8"
 
 
 def to_string(to: str) -> bytes:
-    b: bytes = bytes()
-    b += len(to).to_bytes(INT_SIZE, BYTE_ORDER)
+    b = len(to).to_bytes(INT_SIZE, BYTE_ORDER)
     b += to.encode(ENCODING)
     assert len(to) + INT_SIZE == len(b)
     return b
@@ -43,11 +45,8 @@ def to_number(to: int) -> bytes:
 
 
 def to_list(to: Union[list, tuple]) -> bytes:
-    b = bytes()
-    b += to_number(len(to))
+    b = to_number(len(to))
     for item in to:
-        size = len(serialize(item))
-        b += to_number(size)
         b += serialize(item)
     return b
 
@@ -57,7 +56,7 @@ def to_class(to: object):
     for name, value in vars(to).items():
         if name.startswith('__'):
             continue
-        if isinstance(value, (str, int, list, dict)):
+        elif isinstance(value, SUPPORTED_TYPES):
             b += serialize(value)
     return b
 
@@ -82,19 +81,19 @@ def deserialize(
 def from_bytes(from_: bytes, to: bytes) -> (str, int):
     assert isinstance(to, bytes)
     len_bytes, read = from_number(from_, int())
-    from_ = from_[read:]
-    bytes_array = from_[0: len_bytes]
+    bytes_array = from_[read: read + len_bytes]
     assert len_bytes == len(bytes_array)
-    return bytes_array, read + len(bytes_array)
+    size = read + len_bytes
+    return bytes_array, size
 
 
 def from_string(from_: bytes, to: str) -> (str, int):
     assert isinstance(to, str)
     len_string, read = from_number(from_, int())
-    from_ = from_[read:]
-    string = from_[0: len_string].decode(ENCODING)
+    string = from_[read: read + len_string].decode(ENCODING)
     assert len_string == len(string)
-    return string, read + len(string)
+    size = read + len(string)
+    return string, size
 
 
 def from_number(from_: bytes, to: int) -> (str, int):
@@ -106,16 +105,11 @@ def from_list(from_: bytes, to: Union[list, tuple]):
     list_array = []
     len_list, read = from_number(from_, int())
     item_type = to[0]
-    if isinstance(item_type, type):
-        item_type = item_type()
     pointer = read
     for i in range(len_list):
-        len_list_item, read = from_number(from_[pointer:], int())
-        pointer += read
-        list_item, read = deserialize(
-            from_[pointer: pointer + len_list_item], item_type)
-        pointer += read
+        list_item, read = deserialize(from_[pointer:], item_type)
         list_array.append(list_item)
+        pointer += read
     assert len_list == len(list_array)
     return list_array, pointer
 
