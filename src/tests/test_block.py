@@ -17,7 +17,6 @@ class TestBlock(unittest.TestCase):
         serialized_block = self.block.serialize()
         block = Block()
         block.deserialize(serialized_block)
-        block.hash()
         self.assertEqual(block.previous_hash, self.block.previous_hash)
         self.assertEqual(
             block.transactions[0].amount,

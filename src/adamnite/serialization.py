@@ -53,6 +53,7 @@ def to_list(to: Union[list, tuple]) -> bytes:
 
 def to_class(to: object):
     b: bytes = bytes()
+    assert hasattr(to, "__dict__"), TypeError(f"{to} Not Supported Type")
     for name, value in vars(to).items():
         if name.startswith('__'):
             continue
@@ -116,7 +117,7 @@ def from_list(from_: bytes, to: Union[list, tuple]):
 
 def from_class(from_: bytes, to: object) -> (object, int):
     pointer = 0
-    assert hasattr(to, "__dict__"), TypeError(f"{to} is not initiated")
+    assert hasattr(to, "__dict__"), TypeError(f"{to} Not Supported Type")
     for name, value in vars(to).items():
         if name.startswith('__'):
             continue
@@ -141,8 +142,12 @@ class Serializable:
 
         for name, value in vars(self).items():
             setattr(Deserialize, name, value)
-        block, read = deserialize(b, Deserialize)
-        for name, value in vars(block).items():
+        restored_class, read = deserialize(b, Deserialize)
+        for name, value in vars(restored_class).items():
             if name.startswith('__'):
                 continue
             setattr(self, name, value)
+        self.hash()
+
+    def hash(self):
+        raise NotImplemented
