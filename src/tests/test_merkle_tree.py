@@ -2,30 +2,30 @@ import random
 import unittest
 
 from adamnite import serialization
-from adamnite.merkle_tree import hash_sha256, merkle_tree
+from adamnite.merkle_tree import hash_sha512, merkle_tree
 from adamnite.transactions import Transaction
 
 
 class MerkleTree(unittest.TestCase):
     def test_tree_root(self):
-        expected_root = hash_sha256(
-            hash_sha256(
-                hash_sha256(
-                    hash_sha256(bytes(1)) + hash_sha256(bytes(2))
+        expected_root = hash_sha512(
+            hash_sha512(
+                hash_sha512(
+                    hash_sha512(bytes(1)) + hash_sha512(bytes(2))
                 )
                 +
-                hash_sha256(
-                    hash_sha256(bytes(3)) + hash_sha256(bytes(4))
+                hash_sha512(
+                    hash_sha512(bytes(3)) + hash_sha512(bytes(4))
                 )
             )
             +
-            hash_sha256(
-                hash_sha256(
-                    hash_sha256(bytes(5)) + hash_sha256(bytes(5))
+            hash_sha512(
+                hash_sha512(
+                    hash_sha512(bytes(5)) + hash_sha512(bytes(5))
                 )
                 +
-                hash_sha256(
-                    hash_sha256(bytes(5)) + hash_sha256(bytes(5))
+                hash_sha512(
+                    hash_sha512(bytes(5)) + hash_sha512(bytes(5))
                 )
             )
         )
