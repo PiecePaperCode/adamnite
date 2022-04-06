@@ -1,7 +1,7 @@
 from typing import Literal, Union
 
 
-SUPPORTED_TYPES = (bytes, str, int, list, type, object)
+SUPPORTED_TYPES = (bytes, str, int, list, tuple, type, object)
 
 
 def serialize(to: Union[SUPPORTED_TYPES]) -> bytes:
@@ -147,7 +147,3 @@ class Serializable:
             if name.startswith('__'):
                 continue
             setattr(self, name, value)
-        self.hash()
-
-    def hash(self):
-        raise NotImplemented

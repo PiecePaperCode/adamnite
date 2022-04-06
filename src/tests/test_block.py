@@ -9,6 +9,7 @@ class TestBlock(unittest.TestCase):
     def test_block(self):
         self.assertEqual(self.block.height, 1)
         self.assertIsInstance(self.block.block_hash, bytes)
+        self.assertTrue(self.block.valid())
 
     def test_serialize_block(self):
         self.assertIsInstance(self.block.serialize(), bytes)

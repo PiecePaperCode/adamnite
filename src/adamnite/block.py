@@ -1,32 +1,37 @@
 import time
 
-from adamnite.merkle_tree import hash_sha512
-from adamnite.serialization import Serializable
+from secp256k1 import PrivateKey, ECDSA
+from adamnite.account import Account
+from adamnite.merkle_tree import hash_sha512, merkle_tree
+from adamnite.serialization import Serializable, serialize
 from adamnite.transactions import Transaction
 
 
 class Block(Serializable):
     def __init__(
             self,
+            previous_hash: bytes = b'previous_hash',
             height: int = 1,
-            previous_hash: str = 'previous_hash',
-            proposer: str = 'proposer',
-            witnesses=['witnesses'],
-            signature: str = 'signature',
-            transactions=[Transaction(), Transaction()],
+            account: Account = Account(),
+            witnesses: list = ('witnesses', 'witnesses'),
+            transactions: list = (Transaction(), Transaction()),
     ):
         self.previous_hash = previous_hash
         self.height = height
         self.timestamp: int = int(time.time())
-        self.proposer = proposer
-        self.signature = signature
+        self.proposer: bytes = account.public_key
+        self.signature: bytes = ECDSA().ecdsa_serialize(
+            PrivateKey(account.private_key).ecdsa_sign(self.proposer)
+        )
         self.witnesses = witnesses
-        self.transactions_root: int = 444
+        self.transactions_root: bytes = merkle_tree(
+            [
+                serialize(transaction)
+                for transaction in transactions
+            ]
+        )
         self.transactions = transactions
         self.block_hash = self.hash()
-
-    def valid(self):
-        return self.height == self.height
 
     def header(self):
         class BlockHeader(Serializable):
@@ -53,3 +58,14 @@ class Block(Serializable):
 
         self.block_hash = hash_sha512(BlockHash().serialize())
         return self.block_hash
+
+    def valid(self):
+        assert self.hash() == self.block_hash
+        assert self.transactions_root == merkle_tree(
+            [
+                serialize(transaction)
+                for transaction in self.transactions
+            ]
+        )
+        assert any([transaction.valid() for transaction in self.transactions])
+        return True
