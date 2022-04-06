@@ -2,10 +2,6 @@ from flask import Flask, jsonify
 
 app = Flask(__name__)
 
-# Main Entry Point
-if __name__ == '__main__':
-    app.run()
-
 
 @app.route("/")
 def home():
@@ -15,3 +11,8 @@ def home():
             'version': '0.1.0'
         }
     )
+
+
+# Main Entry Point
+if __name__ == '__main__':
+    app.run()
