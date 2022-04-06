@@ -20,6 +20,10 @@ def merkle_tree(data_blocks: list):
     return root.pop()
 
 
+def radix_tree():
+    return {}
+
+
 def hash_sha512(of: bytes):
     assert isinstance(of, bytes)
     return bytes(hashlib.sha512(of).digest())

@@ -2,12 +2,12 @@ import random
 import unittest
 
 from adamnite import serialization
-from adamnite.merkle_tree import hash_sha512, merkle_tree
+from adamnite.tree import hash_sha512, merkle_tree, radix_tree
 from adamnite.transactions import Transaction
 
 
-class MerkleTree(unittest.TestCase):
-    def test_tree_root(self):
+class TestTree(unittest.TestCase):
+    def test_merkle_root(self):
         expected_root = hash_sha512(
             hash_sha512(
                 hash_sha512(
@@ -34,7 +34,7 @@ class MerkleTree(unittest.TestCase):
         root = merkle_tree(custom_list)
         self.assertEqual(root, expected_root)
 
-    def test_transaction_root(self):
+    def test_merkle_transaction_root(self):
         def create_random_transactions():
             transactions = [
                 Transaction(amount=random.randint(0, 99))
@@ -49,3 +49,36 @@ class MerkleTree(unittest.TestCase):
             merkle_tree(create_random_transactions()),
             merkle_tree(create_random_transactions()),
         )
+
+    def test_radix_tree(self):
+        expected_values = {
+            'romane': 1,
+            'romanus': 2,
+            'romulus': 3,
+            'rubens': 4,
+            'ruber': 5,
+            'rubicon': 6,
+            'rubicundus': 7,
+        }
+        expected_tree = {
+            "r": {
+                "om": {
+                    "ulus": 3,
+                    "an": {
+                        "e": 1,
+                        "us": 2,
+                    }
+                },
+                "ub": {
+                    "e": {
+                        "ns": 4,
+                        "r": 5,
+                    },
+                    "ic": {
+                        "on": 6,
+                        "undus": 7,
+                    }
+                }
+            }
+        }
+        print(expected_tree["r"]["ub"]["ic"]["on"])

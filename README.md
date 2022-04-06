@@ -74,7 +74,7 @@ python -m unittest
 
 ```sh
 python -m unittest tests/test_flask.py
-python -m unittest tests/test_merkle_tree.py
+python -m unittest tests/test_tree.py
 python -m unittest tests/TEST_FILE.py
 ```
 

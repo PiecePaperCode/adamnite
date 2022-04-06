@@ -2,7 +2,7 @@ import time
 
 from secp256k1 import PrivateKey, ECDSA
 from adamnite.account import Account
-from adamnite.merkle_tree import hash_sha512, merkle_tree
+from adamnite.tree import hash_sha512, merkle_tree
 from adamnite.serialization import Serializable, serialize
 from adamnite.transactions import Transaction
 
