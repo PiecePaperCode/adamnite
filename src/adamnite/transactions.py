@@ -8,16 +8,16 @@ class Transaction:
     def __init__(
             self,
             sender: Account = Account(),
-            receiver: bytes = None,
             amount: int = 1,
-            fee: int = 1,
+            receiver: bytes = b'',
             message: bytes = b'',
+            fee: int = 0,
     ):
         self.sender = sender.public_key
-        self.receiver = receiver
         self.amount = amount
-        self.fee = fee
+        self.receiver = receiver
         self.message = message
+        self.fee = fee
         self.signature = self.signature(sender.private_key)
 
     def valid(self):
