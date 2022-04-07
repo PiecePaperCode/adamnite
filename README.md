@@ -7,7 +7,7 @@
   <a href="https://github.com/othneildrew/Best-README-Template">
     <img src="https://adamnite.org/logo.svg" alt="Logo" width="80" height="80">
   </a>
-  <h3 align="center">Adamnyte Python </h3>
+  <h3 align="center">PyAdamnite</h3>
    <p align="center">
       Adamnite's implementation in Python
    </p>
