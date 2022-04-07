@@ -1,10 +1,11 @@
 import hashlib
+import blockchainutils
 
 
 # https://en.wikipedia.org/wiki/Merkle_tree#/media/File:Hash_Tree.svg
 def merkle_tree(data_blocks: list):
     root: [bytes] = [
-        hash_sha512(of=item)
+        hashing(of=item)
         for item in data_blocks
     ]
     while len(root) != 1:
@@ -12,7 +13,7 @@ def merkle_tree(data_blocks: list):
         if not even(len(root)):
             root.append(root[-1])
         for i in range(0, len(root), 2):
-            leaf = hash_sha512(
+            leaf = hashing(
                 root[i] + root[i + 1]
             )
             level.append(bytes(leaf))
