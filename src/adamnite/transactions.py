@@ -14,7 +14,7 @@ class Transaction:
             message: bytes = b'',
     ):
         self.sender = sender.public_key
-        self.receiver = receiver or sender.public_key
+        self.receiver = receiver
         self.amount = amount
         self.fee = fee
         self.message = message
