@@ -2,30 +2,31 @@ import random
 import unittest
 
 from adamnite import serialization
-from adamnite.tree import hash_sha512, merkle_tree, radix_tree
+from adamnite.crypto import sha512
+from adamnite.tree import merkle_tree
 from adamnite.transactions import Transaction
 
 
 class TestTree(unittest.TestCase):
     def test_merkle_root(self):
-        expected_root = hash_sha512(
-            hash_sha512(
-                hash_sha512(
-                    hash_sha512(bytes(1)) + hash_sha512(bytes(2))
+        expected_root = sha512(
+            sha512(
+                sha512(
+                    sha512(bytes(1)) + sha512(bytes(2))
                 )
                 +
-                hash_sha512(
-                    hash_sha512(bytes(3)) + hash_sha512(bytes(4))
+                sha512(
+                    sha512(bytes(3)) + sha512(bytes(4))
                 )
             )
             +
-            hash_sha512(
-                hash_sha512(
-                    hash_sha512(bytes(5)) + hash_sha512(bytes(5))
+            sha512(
+                sha512(
+                    sha512(bytes(5)) + sha512(bytes(5))
                 )
                 +
-                hash_sha512(
-                    hash_sha512(bytes(5)) + hash_sha512(bytes(5))
+                sha512(
+                    sha512(bytes(5)) + sha512(bytes(5))
                 )
             )
         )
@@ -45,6 +46,7 @@ class TestTree(unittest.TestCase):
                 for transaction in transactions
             ]
             return transactions
+
         self.assertNotEqual(
             merkle_tree(create_random_transactions()),
             merkle_tree(create_random_transactions()),
@@ -81,4 +83,7 @@ class TestTree(unittest.TestCase):
                 }
             }
         }
-        print(expected_tree["r"]["ub"]["ic"]["on"])
+        self.assertEqual(
+            expected_tree["r"]["ub"]["ic"]["on"],
+            expected_values["rubicon"]
+        )

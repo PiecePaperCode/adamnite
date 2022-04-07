@@ -2,10 +2,10 @@ import time
 
 from secp256k1 import PrivateKey, ECDSA
 from adamnite.account import Account
-from adamnite.tree import hash_sha512, merkle_tree
+from adamnite.crypto import sha512
+from adamnite.tree import merkle_tree
 from adamnite.serialization import Serializable, serialize
 from adamnite.transactions import Transaction
-import blockchain utils
 
 
 class Block(Serializable):
@@ -57,7 +57,7 @@ class Block(Serializable):
             witnesses = self.witnesses
             transactions_root = self.transactions_root
 
-        self.block_hash = hashing(BlockHash().serialize())
+        self.block_hash = sha512(BlockHash().serialize())
         return self.block_hash
 
     def valid(self):

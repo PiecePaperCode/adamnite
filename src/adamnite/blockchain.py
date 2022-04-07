@@ -1,7 +1,5 @@
 from datetime import datetime
 import time
-from blockchainutils import hashing
-import json, requests
 from random import randint, choice
 #Implementation based off basic POS repository by eltnieg
 
