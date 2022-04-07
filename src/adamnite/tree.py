@@ -24,10 +24,6 @@ def radix_tree():
     return {}
 
 
-def hash_sha512(of: bytes):
-    assert isinstance(of, bytes)
-    return bytes(hashlib.sha512(of).digest())
-
 
 def even(number):
     if number % 2 == 0:
