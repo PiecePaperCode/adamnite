@@ -15,7 +15,7 @@ class Block(Serializable):
             height: int = 1,
             account: Account = Account(),
             witnesses: list = ('witnesses', 'witnesses'),
-            transactions: list = (Transaction(), Transaction()),
+            transactions: list = (Transaction()),
     ):
         self.previous_hash = previous_hash
         self.height = height
