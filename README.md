@@ -9,11 +9,10 @@
   </a>
   <h3 align="center">Adamnyte Python </h3>
    <p align="center">
-      The Implementation of Adamnite Protocol and its Cryptocurrency Nite in 
-      Python.
+      Adamnite's implementation in Python
    </p>
    <b align="center">
-      This Projects mainly acts as research for concepts.
+      This is primarily a high-level implementation intended for protocol research.
    </b>
 </div>
 
