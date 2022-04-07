@@ -2,3 +2,5 @@ requests==2.27.1
 Flask==2.0.3
 secp256k1~=0.14.0
 keyring~=23.5.0
+jsonpickle~=2.1.0
+rlp~=3.0.0
