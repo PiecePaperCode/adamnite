@@ -1,3 +1,5 @@
+import jsonpickle
+
 from typing import Literal, Union
 
 
@@ -143,6 +145,16 @@ class Serializable:
         for name, value in vars(self).items():
             setattr(Deserialize, name, value)
         restored_class, read = deserialize(b, Deserialize)
+        for name, value in vars(restored_class).items():
+            if name.startswith('__'):
+                continue
+            setattr(self, name, value)
+
+    def encode(self) -> bytes:
+        return jsonpickle.encode(self)
+
+    def decode(self, b: bytes):
+        restored_class = jsonpickle.decode(b)
         for name, value in vars(restored_class).items():
             if name.startswith('__'):
                 continue
