@@ -1,6 +1,6 @@
 import time
 
-from adamnite.account import Account
+from adamnite.account import PrivateAccount
 from adamnite.crypto import sha512, sign
 from adamnite.tree import merkle_tree
 from adamnite.serialization import Serializable, serialize
@@ -12,9 +12,9 @@ class Block(Serializable):
             self,
             previous_hash: bytes = bytes(64),
             height: int = 1,
-            account: Account = Account(),
-            witnesses: list = ('witnesses', 'witnesses'),
-            transactions: list = (Transaction(), Transaction()),
+            account: PrivateAccount = PrivateAccount(),
+            witnesses: tuple = ('witnesses', 'witnesses'),
+            transactions: tuple = (Transaction(),),
     ):
         self.previous_hash = previous_hash
         self.height = height

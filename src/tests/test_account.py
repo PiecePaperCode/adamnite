@@ -1,15 +1,17 @@
 import os
 import unittest
 
-from adamnite.account import Account, Wallet
+from adamnite.account import PrivateAccount, Wallet
 
 
 class TestAccount(unittest.TestCase):
-    account = Account()
+    account = PrivateAccount()
     wallet = Wallet()
 
     def test_account(self):
         self.assertTrue(self.account.valid())
+        self.assertTrue(self.account.public_account().valid())
+        print(self.account.public_account().address)
 
     def test_wallet(self):
         self.assertTrue(self.wallet.accounts[0].valid())

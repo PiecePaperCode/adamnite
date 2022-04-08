@@ -1,16 +1,30 @@
+import base58
 import keyring
 
 from adamnite.crypto import secp256k1
 from adamnite.serialization import deserialize, serialize
 
 
-class Account:
+class PrivateAccount:
     def __init__(self):
         self.private_key, self.public_key = secp256k1()
-        self.address: bytes = self.public_key
+
+    def public_account(self):
+        return PublicAccount(self.public_key)
 
     def valid(self):
         _, public_key = secp256k1(self.private_key)
+        assert self.public_key == public_key
+        return True
+
+
+class PublicAccount:
+    def __init__(self, public_key):
+        self.public_key = public_key
+        self.address = base58.b58encode(self.public_key)
+
+    def valid(self):
+        public_key = base58.b58decode(self.address)
         assert self.public_key == public_key
         return True
 
@@ -22,10 +36,10 @@ class Wallet:
     if keyring.get_password('PyAdamnite', 'wallet'):
         accounts, size = deserialize(
             bytes.fromhex(keyring.get_password(service_name, username)),
-            [Account()]
+            [PrivateAccount()]
         )
     else:
-        accounts = [Account() for i in range(100)]
+        accounts = [PrivateAccount() for i in range(100)]
         keyring.set_password(
             service_name,
             username,
@@ -40,7 +54,7 @@ class Wallet:
         with open(file, 'rb') as wallet:
             self.accounts, size = deserialize(
                 wallet.read(),
-                [Account()]
+                [PrivateAccount()]
             )
 
     def delete_wallet(self):

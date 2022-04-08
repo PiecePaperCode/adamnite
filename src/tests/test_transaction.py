@@ -2,7 +2,7 @@ import unittest
 
 from secp256k1 import PrivateKey, PublicKey, ECDSA
 
-from adamnite.account import Account
+from adamnite.account import PrivateAccount
 from adamnite.transactions import Transaction
 from adamnite.serialization import serialize, deserialize
 
@@ -12,7 +12,7 @@ class TestTransaction(unittest.TestCase):
     private_key: bytes = curve.private_key
     public_key: bytes = curve.pubkey.serialize()
     transaction = Transaction(
-        sender=Account(),
+        sender=PrivateAccount(),
         receiver=public_key,
         amount=100,
         fee=1,
