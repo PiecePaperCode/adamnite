@@ -1,21 +1,17 @@
-import os
 import keyring
 
+from adamnite.crypto import secp256k1
 from adamnite.serialization import deserialize, serialize
-from secp256k1 import PrivateKey
 
 
 class Account:
     def __init__(self):
-        curve = PrivateKey(privkey=os.urandom(32))
-        self.private_key: bytes = curve.private_key
-        self.public_key: bytes = curve.pubkey.serialize()
+        self.private_key, self.public_key = secp256k1()
         self.address: bytes = self.public_key
 
     def valid(self):
-        assert PrivateKey(
-            self.private_key
-        ).pubkey.serialize() == self.public_key
+        _, public_key = secp256k1(self.private_key)
+        assert self.public_key == public_key
         return True
 
 

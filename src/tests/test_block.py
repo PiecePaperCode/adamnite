@@ -8,6 +8,7 @@ class TestBlock(unittest.TestCase):
 
     def test_block(self):
         self.assertEqual(self.block.height, 1)
+        self.assertEqual(self.block.previous_hash, bytes(64))
         self.assertIsInstance(self.block.block_hash, bytes)
         self.assertTrue(self.block.valid())
 

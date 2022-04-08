@@ -1,8 +1,7 @@
 import time
 
-from secp256k1 import PrivateKey, ECDSA
 from adamnite.account import Account
-from adamnite.crypto import sha512
+from adamnite.crypto import sha512, sign
 from adamnite.tree import merkle_tree
 from adamnite.serialization import Serializable, serialize
 from adamnite.transactions import Transaction
@@ -11,19 +10,17 @@ from adamnite.transactions import Transaction
 class Block(Serializable):
     def __init__(
             self,
-            previous_hash: bytes = b'previous_hash',
+            previous_hash: bytes = bytes(64),
             height: int = 1,
             account: Account = Account(),
             witnesses: list = ('witnesses', 'witnesses'),
-            transactions: list = (Transaction()),
+            transactions: list = (Transaction(), Transaction()),
     ):
         self.previous_hash = previous_hash
         self.height = height
         self.timestamp: int = int(time.time())
         self.proposer: bytes = account.public_key
-        self.signature: bytes = ECDSA().ecdsa_serialize(
-            PrivateKey(account.private_key).ecdsa_sign(self.proposer)
-        )
+        self.signature: bytes = sign(account.private_key, self.proposer)
         self.witnesses = witnesses
         self.transactions_root: bytes = merkle_tree(
             [

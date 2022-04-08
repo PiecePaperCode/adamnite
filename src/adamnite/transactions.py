@@ -1,6 +1,5 @@
-from secp256k1 import PrivateKey, PublicKey, ECDSA
-
 from adamnite.account import Account
+from adamnite.crypto import validate, sign
 from adamnite.serialization import serialize
 
 
@@ -18,23 +17,19 @@ class Transaction:
         self.receiver = receiver
         self.message = message
         self.fee = fee
-        self.signature = self.signature(sender.private_key)
+        self.signature = self.sign(sender.private_key)
 
-    def valid(self):
+    def valid(self) -> bool:
         assert 0 < self.amount
         assert -1 < self.fee
         serialized_header = serialize(self.header())
-        signature = ECDSA().ecdsa_deserialize(self.signature)
-        valid = PublicKey(
-            self.sender, raw=True
-        ).ecdsa_verify(serialized_header, signature)
+        valid = validate(self.sender, self.signature, serialized_header)
         return valid
 
-    def signature(self, private_key):
+    def sign(self, private_key) -> bytes:
         serialized_header = serialize(self.header())
-        return ECDSA().ecdsa_serialize(
-            PrivateKey(private_key).ecdsa_sign(serialized_header)
-        )
+        signature = sign(private_key, serialized_header)
+        return signature
 
     def header(self):
         class Sign:
