@@ -19,8 +19,8 @@ class PrivateAccount:
 
 
 class PublicAccount:
-    def __init__(self, public_key):
-        self.public_key = public_key
+    def __init__(self, public_key=None, address=None):
+        self.public_key = public_key or base58.b58decode(address)
         self.address = base58.b58encode(self.public_key)
 
     def valid(self):

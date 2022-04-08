@@ -2,7 +2,8 @@ import unittest
 
 from secp256k1 import PrivateKey, PublicKey, ECDSA
 
-from adamnite.account import PrivateAccount
+from adamnite.account import PrivateAccount, PublicAccount
+from adamnite.genesis import GENESIS_TRANSACTIONS
 from adamnite.transactions import Transaction
 from adamnite.serialization import serialize, deserialize
 
@@ -13,10 +14,10 @@ class TestTransaction(unittest.TestCase):
     public_key: bytes = curve.pubkey.serialize()
     transaction = Transaction(
         sender=PrivateAccount(),
-        receiver=public_key,
+        receiver=PublicAccount(public_key=public_key),
         amount=100,
         fee=1,
-        message=b'Transaction'
+        message=b'Test Transaction'
     )
 
     def test_curve(self):
@@ -32,7 +33,7 @@ class TestTransaction(unittest.TestCase):
 
     def test_serialisation_transaction(self):
         bytes_class = serialize(self.transaction)
-        restored_class, _ = deserialize(bytes_class, Transaction())
+        restored_class, _ = deserialize(bytes_class, self.transaction)
         self.assertEqual(self.transaction.sender, restored_class.sender)
 
     def test_valid_transaction(self):

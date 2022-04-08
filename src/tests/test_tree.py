@@ -2,6 +2,7 @@ import random
 import unittest
 
 from adamnite import serialization
+from adamnite.account import PrivateAccount
 from adamnite.crypto import sha512
 from adamnite.tree import merkle_tree
 from adamnite.transactions import Transaction
@@ -38,7 +39,13 @@ class TestTree(unittest.TestCase):
     def test_merkle_transaction_root(self):
         def create_random_transactions():
             transactions = [
-                Transaction(amount=random.randint(0, 99))
+                Transaction(
+                    sender=PrivateAccount(),
+                    receiver=PrivateAccount().public_account(),
+                    amount=random.randint(1, 89),
+                    message=b'Test Transaction',
+                    fee=random.randint(1, 89),
+                )
                 for _ in range(0, 99)
             ]
             transactions = [

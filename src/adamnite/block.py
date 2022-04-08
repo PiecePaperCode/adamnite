@@ -4,23 +4,22 @@ from adamnite.account import PrivateAccount
 from adamnite.crypto import sha512, sign
 from adamnite.tree import merkle_tree
 from adamnite.serialization import Serializable, serialize
-from adamnite.transactions import Transaction
 
 
 class Block(Serializable):
     def __init__(
             self,
-            previous_hash: bytes = bytes(64),
-            height: int = 1,
-            account: PrivateAccount = PrivateAccount(),
-            witnesses: tuple = ('witnesses', 'witnesses'),
-            transactions: tuple = (Transaction(),),
+            previous_hash: bytes,
+            height: int,
+            proposer: PrivateAccount,
+            witnesses: tuple = (),
+            transactions: tuple = (),
     ):
         self.previous_hash = previous_hash
         self.height = height
         self.timestamp: int = int(time.time())
-        self.proposer: bytes = account.public_key
-        self.signature: bytes = sign(account.private_key, self.proposer)
+        self.proposer: bytes = proposer.public_key
+        self.signature: bytes = sign(proposer.private_key, self.proposer)
         self.witnesses = witnesses
         self.transactions_root: bytes = merkle_tree(
             [

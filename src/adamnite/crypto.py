@@ -20,7 +20,7 @@ def ripmed160(of: bytes) -> bytes:
 def secp256k1(private_key=os.urandom(32)) -> (bytes, bytes):
     curve = PrivateKey(privkey=private_key)
     private_key: bytes = curve.private_key
-    public_key: bytes = curve.pubkey.serialize()
+    public_key: bytes = curve.pubkey.serialize(compressed=True)
     return private_key, public_key
 
 

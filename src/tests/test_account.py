@@ -11,7 +11,6 @@ class TestAccount(unittest.TestCase):
     def test_account(self):
         self.assertTrue(self.account.valid())
         self.assertTrue(self.account.public_account().valid())
-        print(self.account.public_account().address)
 
     def test_wallet(self):
         self.assertTrue(self.wallet.accounts[0].valid())

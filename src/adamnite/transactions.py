@@ -1,4 +1,4 @@
-from adamnite.account import PrivateAccount
+from adamnite.account import PrivateAccount, PublicAccount
 from adamnite.crypto import validate, sign
 from adamnite.serialization import serialize
 
@@ -6,9 +6,9 @@ from adamnite.serialization import serialize
 class Transaction:
     def __init__(
             self,
-            sender: PrivateAccount = PrivateAccount(),
+            sender: PrivateAccount,
+            receiver: PublicAccount,
             amount: int = 1,
-            receiver: bytes = b'',
             message: bytes = b'',
             fee: int = 0,
     ):
