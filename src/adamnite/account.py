@@ -8,9 +8,10 @@ from adamnite.serialization import deserialize, serialize
 class PrivateAccount:
     def __init__(self):
         self.private_key, self.public_key = secp256k1()
+        self.nonce = 0
 
     def public_account(self):
-        return PublicAccount(self.public_key)
+        return PublicAccount(public_key=self.public_key)
 
     def valid(self):
         _, public_key = secp256k1(self.private_key)
@@ -19,13 +20,13 @@ class PrivateAccount:
 
 
 class PublicAccount:
-    def __init__(self, public_key=None, address=None):
-        self.public_key = public_key or base58.b58decode(address)
-        self.address = base58.b58encode(self.public_key)
+    def __init__(self, address=None, public_key=None):
+        public_key = public_key or base58.b58decode(address)
+        self.address = base58.b58encode(public_key)
 
     def valid(self):
         public_key = base58.b58decode(self.address)
-        assert self.public_key == public_key
+        assert len(public_key) == 33 and isinstance(public_key, bytes)
         return True
 
 

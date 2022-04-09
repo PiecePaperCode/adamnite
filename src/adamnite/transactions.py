@@ -1,3 +1,5 @@
+import base58
+
 from adamnite.account import PrivateAccount, PublicAccount
 from adamnite.crypto import validate, sign
 from adamnite.serialization import serialize
@@ -12,18 +14,22 @@ class Transaction:
             message: bytes = b'',
             fee: int = 0,
     ):
-        self.sender = sender.public_key
+        self.type = 0
+        self.sender: bytes = sender.public_account().address
         self.amount = amount
-        self.receiver = receiver
+        self.receiver: bytes = receiver.address
         self.message = message
         self.fee = fee
+        self.nonce = sender.nonce
+        sender.nonce += 1
         self.signature = self.sign(sender.private_key)
 
     def valid(self) -> bool:
         assert 0 < self.amount
-        assert -1 < self.fee
+        assert 0 <= self.fee
         serialized_header = serialize(self.header())
-        valid = validate(self.sender, self.signature, serialized_header)
+        public_key = base58.b58decode(self.sender)
+        valid = validate(public_key, self.signature, serialized_header)
         return valid
 
     def sign(self, private_key) -> bytes:
@@ -33,9 +39,11 @@ class Transaction:
 
     def header(self):
         class Sign:
+            type = self.type
             sender = self.sender
-            receiver = self.receiver
             amount = self.amount
-            fee = self.fee
+            receiver = self.receiver
             message = self.message
+            fee = self.fee
+            nonce = self.nonce
         return Sign()
