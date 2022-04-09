@@ -53,8 +53,8 @@ class Block(Serializable):
             witnesses = self.witnesses
             transactions_root = self.transactions_root
 
-        self.block_hash = sha512(BlockHash().serialize())
-        return self.block_hash
+        block_hash = sha512(BlockHash().serialize())
+        return block_hash
 
     def valid(self):
         assert self.hash() == self.block_hash
