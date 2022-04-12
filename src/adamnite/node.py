@@ -4,7 +4,7 @@ import time
 from socket import socket, AF_INET6, SOCK_STREAM
 from adamnite.serialization import INT_SIZE, from_number
 
-TIMEOUT = 0.3
+TIMEOUT = 1
 
 
 class Peer:
@@ -20,11 +20,9 @@ class Peer:
 
     async def incoming(self):
         size, _ = from_number(await self.reader.read(INT_SIZE), int())
-        message = await asyncio.shield(
-            asyncio.wait_for(
-                self.reader.read(size),
-                timeout=TIMEOUT
-            )
+        message = await asyncio.wait_for(
+            self.reader.read(size),
+            timeout=TIMEOUT
         )
         if message == b'PING':
             self.writer.write(b'PONG')
@@ -51,6 +49,12 @@ class Node:
     async def accept(self, reader, writer):
         ip, port, _, _ = writer.get_extra_info('peername')
         self.peers.add(Peer(ip, port, reader, writer))
+
+    def export_peers(self) -> tuple:
+        peers = []
+        for peer in self.peers:
+            peers.append((peer.ip, peer.port))
+        return tuple(peers)
 
 
 class Reader:
