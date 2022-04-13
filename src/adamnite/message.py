@@ -1,15 +1,15 @@
-from adamnite.block import Block
-from adamnite.node import Peer
-from adamnite.serialization import INT_SIZE
-from adamnite.transactions import Transaction
+from adamnite.serialization import INT_SIZE, serialize
 
-REQUEST = 0
-RESPONSE = 1
+
 PEERS = 0
 TRANSACTIONS = 1
 BLOCKS = 2
 ACCOUNTS = 3
-SELECT_ALL: tuple = (b'SELECT ALL',)
+
+REQUEST = 0
+RESPONSE = 1
+
+SELECT_ALL: tuple = (b'0',)
 
 
 class Message:
@@ -25,7 +25,7 @@ class Request:
             resource: int = PEERS,
             query: tuple = SELECT_ALL,
     ):
-        self.size: int = (INT_SIZE * 2)
+        self.size: int = (INT_SIZE * 2) + len(serialize(query))
         self.type: int = REQUEST
         self.resource: int = resource
         self.query: tuple = query
@@ -36,12 +36,12 @@ class Response:
             self,
             payload: tuple,
     ):
-        self.size = (INT_SIZE * 2) + len(payload)
+        self.size = (INT_SIZE * 2) + len(serialize(payload))
         self.type: int = RESPONSE
         resource_lookup = {
-            Block.__name__: BLOCKS,
-            Transaction.__name__: TRANSACTIONS,
-            Peer.__name__: PEERS,
+            "Block": BLOCKS,
+            "Transaction": TRANSACTIONS,
+            "Peer": PEERS,
         }
         self.resource: int = resource_lookup[type(payload[0]).__name__]
         self.payload = payload

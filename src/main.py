@@ -1,18 +1,16 @@
-from flask import Flask, jsonify
+import asyncio
+import logging
+import os
 
-app = Flask(__name__)
+from adamnite.node import Node, Peer
 
+logging.getLogger().setLevel(logging.INFO)
 
-@app.route("/")
-def home():
-    return jsonify(
-        {
-            'name': 'Adamnite',
-            'version': '0.1.0'
-        }
-    )
-
-
-# Main Entry Point
 if __name__ == '__main__':
-    app.run()
+    port = 6101
+    if "PORT" in os.environ:
+        port = int(os.environ['PORT'])
+    node = Node(port=port)
+    loop = asyncio.get_event_loop()
+    loop.create_task(node.start_serving())
+    loop.run_forever()

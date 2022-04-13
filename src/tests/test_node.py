@@ -2,11 +2,10 @@ import asyncio
 import random
 import unittest
 
-from adamnite.node import Node, TIMEOUT
-from adamnite.serialization import BYTE_ORDER, INT_SIZE
+from adamnite.node import Node, TIMEOUT, Peer
+from adamnite.serialization import serialize
 
-
-PORT = random.randint(6101, 6198)
+PORT = random.randint(6101, 6199)
 
 
 class TestNode(unittest.TestCase):
@@ -23,24 +22,36 @@ class TestNode(unittest.TestCase):
             return True
         self.assertTrue(self.loop.run_until_complete(run_test()))
         self.assertFalse(self.loop.run_until_complete(run_test(6199)))
-        self.assertTrue(0 < len(self.node.peers))
+        self.assertTrue(0 < len(self.node.connected_peers))
         self.assertEqual(self.node.export_peers()[0].ip, '::ffff:127.0.0.1')
 
-    def test_peer_responding(self):
-        async def run_test():
-            reader, writer = await connect(PORT)
-            size = 4
-            writer.write(size.to_bytes(INT_SIZE, BYTE_ORDER))
-            writer.write(b'PING')
-            message = await asyncio.wait_for(reader.read(4), timeout=TIMEOUT)
-            return message
-        self.assertEqual(self.loop.run_until_complete(run_test()), b'PONG')
+    def test_peers_finding_each_other(self):
+        port2 = random.randint(6200, 6300)
+        node2 = Node(port2)
+        node2.peers.add(Peer('::ffff:127.0.0.1', PORT))
+        self.loop.create_task(node2.start_serving())
+        port3 = random.randint(6300, 6400)
+        node3 = Node(port3)
+        node3.peers.add(Peer('::ffff:127.0.0.1', port2))
+        self.loop.create_task(node3.start_serving())
+        port4 = random.randint(6400, 6500)
+        node4 = Node(port4)
+        node4.peers.add(Peer('::ffff:127.0.0.1', port3))
+        self.loop.create_task(node4.start_serving())
+
+        async def until():
+            while len(self.node.connected_peers) != 3:
+                await asyncio.sleep(TIMEOUT)
+
+        self.loop.run_until_complete(until())
+        self.assertEqual(len(self.node.connected_peers), 3)
 
 
 async def connect(port=6101):
     conn = asyncio.open_connection("127.0.0.1", port)
     try:
         reader, writer = await asyncio.wait_for(conn, timeout=TIMEOUT)
+        writer.write(serialize(0))
     except ConnectionError:
         raise ConnectionError
     return reader, writer
