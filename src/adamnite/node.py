@@ -2,12 +2,18 @@ import asyncio
 import time
 
 from socket import socket, AF_INET6, SOCK_STREAM
-from adamnite.serialization import INT_SIZE, from_number
+from adamnite.serialization import INT_SIZE, from_number, serialize
 
 TIMEOUT = 1
 
 
 class Peer:
+    def __init__(self, ip, port):
+        self.ip: str = ip
+        self.port: int = port
+
+
+class ConnectedPeer:
     def __init__(self, ip, port, reader, writer):
         self.ip = ip
         self.port = port
@@ -48,12 +54,12 @@ class Node:
 
     async def accept(self, reader, writer):
         ip, port, _, _ = writer.get_extra_info('peername')
-        self.peers.add(Peer(ip, port, reader, writer))
+        self.peers.add(ConnectedPeer(ip, port, reader, writer))
 
     def export_peers(self) -> tuple:
         peers = []
         for peer in self.peers:
-            peers.append((peer.ip, peer.port))
+            peers.append(Peer(peer.ip, peer.port))
         return tuple(peers)
 
 

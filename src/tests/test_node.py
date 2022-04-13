@@ -24,7 +24,7 @@ class TestNode(unittest.TestCase):
         self.assertTrue(self.loop.run_until_complete(run_test()))
         self.assertFalse(self.loop.run_until_complete(run_test(6199)))
         self.assertTrue(0 < len(self.node.peers))
-        self.assertEqual(self.node.export_peers()[0][0], '::ffff:127.0.0.1')
+        self.assertEqual(self.node.export_peers()[0].ip, '::ffff:127.0.0.1')
 
     def test_peer_responding(self):
         async def run_test():
