@@ -8,7 +8,7 @@ from adamnite.message import Response, TRANSACTIONS, Message, Request, PEERS, \
     SELECT_ALL
 from adamnite.node import Peer, Node, TIMEOUT
 from adamnite.serialization import deserialize, serialize, INT_SIZE, from_number
-from adamnite.transactions import Transaction
+from adamnite.transaction import Transaction
 from test_node import connect
 
 

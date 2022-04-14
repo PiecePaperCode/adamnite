@@ -1,6 +1,6 @@
 from adamnite.block import Block
 from adamnite.account import PrivateAccount, PublicAccount
-from adamnite.transactions import Transaction
+from adamnite.transaction import Transaction
 
 GENESIS_ACCOUNT = PrivateAccount()
 GENESIS_TRANSACTION = Transaction(

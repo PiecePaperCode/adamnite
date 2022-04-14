@@ -3,7 +3,7 @@ import unittest
 from secp256k1 import PrivateKey, PublicKey, ECDSA
 
 from adamnite.account import Wallet, PrivateAccount
-from adamnite.transactions import Transaction
+from adamnite.transaction import Transaction
 from adamnite.serialization import serialize, deserialize
 
 

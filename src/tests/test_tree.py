@@ -5,7 +5,7 @@ from adamnite import serialization
 from adamnite.account import PrivateAccount
 from adamnite.crypto import sha512
 from adamnite.tree import merkle_tree
-from adamnite.transactions import Transaction
+from adamnite.transaction import Transaction
 
 
 class TestTree(unittest.TestCase):
