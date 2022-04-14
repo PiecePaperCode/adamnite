@@ -4,12 +4,13 @@ import random
 
 from adamnite.account import PrivateAccount
 from adamnite.genesis import GENESIS_BLOCK
-from adamnite.message import Response, TRANSACTIONS, Message, Request, PEERS, \
-    SELECT_ALL
-from adamnite.node import Peer, Node, TIMEOUT
+from adamnite.message import *
+from adamnite.node import Node
+from adamnite.peer import Peer, TIMEOUT
 from adamnite.serialization import deserialize, serialize, INT_SIZE, from_number
 from adamnite.transaction import Transaction
-from test_node import connect
+
+from tests.test_node import connect
 
 
 PORT = random.randint(6101, 6198)
@@ -61,6 +62,7 @@ class TestCrypto(unittest.TestCase):
         self.assertEqual(6101, restored_message.payload[0].port)
 
     node = Node(port=PORT)
+    node.peers = {Peer('::ffff:127.0.0.1', PORT)}
     loop = asyncio.get_event_loop()
     loop.create_task(node.start_serving())
 

@@ -2,7 +2,8 @@ import asyncio
 import random
 import unittest
 
-from adamnite.node import Node, TIMEOUT, Peer
+from adamnite.node import Node
+from adamnite.peer import Peer, TIMEOUT
 from adamnite.serialization import serialize
 
 PORT = random.randint(6101, 6199)
@@ -10,6 +11,7 @@ PORT = random.randint(6101, 6199)
 
 class TestNode(unittest.TestCase):
     node = Node(port=PORT)
+    node.peers = {Peer('::ffff:127.0.0.1', PORT)}
     loop = asyncio.get_event_loop()
     loop.create_task(node.start_serving())
 
@@ -43,7 +45,7 @@ class TestNode(unittest.TestCase):
             while len(self.node.connected_peers) != 3:
                 await asyncio.sleep(TIMEOUT)
 
-        self.loop.run_until_complete(until())
+        self.loop.run_until_complete(asyncio.wait_for(until(), 20))
         self.assertEqual(len(self.node.connected_peers), 3)
 
 
