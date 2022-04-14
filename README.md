@@ -60,13 +60,19 @@ work on the Repo you need have given acces by the Adamnite Team.
 ## Usage
 
 Currently, the project is "not working software".
-But you can run the tests that test modules that are already implemented.
 
-### Run all
+### Start Software
 
 ```sh
 cd src
-python -m unittest
+python main.py
+```
+
+### Run all tests
+
+```sh
+cd src
+python main_tests.py
 ```
 
 ### Run one by one
