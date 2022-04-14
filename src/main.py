@@ -1,10 +1,7 @@
 import asyncio
-import logging
 import os
 
-from adamnite.node import Node, Peer
-
-logging.getLogger().setLevel(logging.INFO)
+from adamnite.node import Node
 
 if __name__ == '__main__':
     port = 6101
