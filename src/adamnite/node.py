@@ -11,11 +11,11 @@ from adamnite.serialization import INT_SIZE, serialize, deserialize
 
 class Node:
     def __init__(self, port=6101):
-        self.listening_port = port
-        self.peers: set = import_peers()
-        self.connected_peers = set()
         self.sock = socket(AF_INET6, SOCK_STREAM)
         self.sock.bind(('::', port))
+        self.myself = Peer("::ffff:127.0.0.1", port)
+        self.peers: set = import_peers()
+        self.connected_peers = set()
         self.loop = asyncio.get_event_loop()
         self.loop.create_task(self.connect())
         self.loop.create_task(self.request_peers())
@@ -28,13 +28,15 @@ class Node:
     async def accept(self, reader, writer):
         ip, port, _, _ = writer.get_extra_info('peername')
         port, _ = deserialize(await reader.read(INT_SIZE), to=int())
+        peer = Peer(ip, port)
+        if peer in self.connected_peers:
+            return
         self.connected_peers.add(
             ConnectedPeer(self, ip, port, reader, writer)
         )
         logger.info(f"Connection from {ip} {port}")
 
     async def connect(self):
-        self.connected_peers = remove_not_connected_peers(self.connected_peers)
         peers = copy.deepcopy(self.peers)
         for peer in peers:
             if peer in self.connected_peers:
@@ -44,7 +46,7 @@ class Node:
                 reader, writer = await asyncio.wait_for(conn, timeout=TIMEOUT)
             except ConnectionError:
                 continue
-            writer.write(serialize(self.listening_port))
+            writer.write(serialize(self.myself.port))
             connected_peer = ConnectedPeer(
                 self,
                 peer.ip, peer.port,
@@ -58,8 +60,8 @@ class Node:
     async def request_peers(self):
         for peer in self.connected_peers:
             peer.request_connected_peers()
-        await asyncio.sleep(3)
         logger.info(f'Currently Connected {len(self.connected_peers)}')
+        await asyncio.sleep(3)
         self.loop.create_task(self.request_peers())
 
     def export_peers(self) -> tuple:
@@ -68,13 +70,12 @@ class Node:
             peers.append(Peer(peer.ip, peer.port))
         return tuple(peers)
 
-
-def remove_not_connected_peers(connected_peers: set) -> set:
-    connected = set()
-    for peer in connected_peers:
-        if peer.connected:
-            connected.add(peer)
-    return connected
+    def remove_not_connected_peers(self):
+        connected = set()
+        for peer in self.connected_peers:
+            if peer.connected:
+                connected.add(peer)
+        self.connected_peers = connected
 
 
 def import_peers() -> set:

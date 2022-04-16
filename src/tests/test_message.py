@@ -84,7 +84,6 @@ class TestCrypto(unittest.TestCase):
             message_byte = size_byte + payload
             peers = (Peer("::ffff:127.0.0.1", PORT),)
             peers, _ = deserialize(message_byte, Response(peers))
-            writer.close()
             return peers
         response = self.loop.run_until_complete(run_test())
         self.assertEqual(response.payload[0].ip, '::ffff:127.0.0.1')

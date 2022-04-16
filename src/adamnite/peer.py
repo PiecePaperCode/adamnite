@@ -2,6 +2,7 @@ import asyncio
 import time
 
 from adamnite.message import *
+from adamnite.logging import logger
 from adamnite.serialization import INT_SIZE, from_number, deserialize, serialize
 
 
@@ -38,7 +39,9 @@ class ConnectedPeer:
             await self.receive()
         except (BrokenPipeError, ConnectionError, AssertionError):
             self.connected = False
-            await asyncio.sleep(90)
+            self.node.remove_not_connected_peers()
+            logger.info(f"Disconnected {self.ip} {self.port}")
+            return
         self.node.loop.create_task(self.incoming())
 
     async def receive(self):
@@ -60,15 +63,16 @@ class ConnectedPeer:
             }
         }
         valid_type = message.type in handlers
-        valid_resource = not valid_type \
-            or message.resource in handlers[message.type]
-        if valid_type and valid_resource:
-            handler = handlers[message.type][message.resource]
-            handler()
+        assert valid_type
+        valid_resource = message.resource in handlers[message.type]
+        assert valid_resource
+        handler = handlers[message.type][message.resource]
+        handler()
         self.last_seen = int(time.time())
 
     def send_connected_peers(self, message_byte: bytes):
-        message, _ = deserialize(message_byte, to=Request())
+        message, size = deserialize(message_byte, to=Request())
+        assert len(message_byte) == size
         connected_peers = self.node.export_peers()
         response = Response(payload=connected_peers)
         self.writer.write(serialize(response))
@@ -78,7 +82,8 @@ class ConnectedPeer:
         self.writer.write(serialize(request))
 
     def receive_connected_peers(self, message_byte: bytes):
-        message, _ = deserialize(message_byte, to=Response((Peer("", 0),)))
+        message, size = deserialize(message_byte, to=Response((Peer("", 0),)))
+        assert len(message_byte) == size
         for peer in message.payload:
             self.node.peers.add(peer)
 
