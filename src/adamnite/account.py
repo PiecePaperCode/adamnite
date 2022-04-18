@@ -1,3 +1,4 @@
+import os
 import base58
 import keyring
 
@@ -7,7 +8,7 @@ from adamnite.serialization import deserialize, serialize
 
 class PrivateAccount:
     def __init__(self):
-        self.private_key, self.public_key = secp256k1()
+        self.private_key, self.public_key = secp256k1(os.urandom(32))
         self.nonce = 0
 
     def public_account(self):

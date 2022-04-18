@@ -18,7 +18,7 @@ class Block(Serializable):
         self.previous_hash = previous_hash
         self.height = height
         self.timestamp: int = int(time.time())
-        self.proposer: bytes = proposer.public_key
+        self.proposer: bytes = proposer.public_account().address
         self.signature: bytes = sign(proposer.private_key, self.proposer)
         self.witnesses = witnesses
         self.transactions_root: bytes = merkle_tree(
@@ -40,11 +40,10 @@ class Block(Serializable):
             witnesses = self.witnesses
             transactions_root = self.transactions_root
             block_hash = self.block_hash
-
-        return BlockHeader()
+        return BlockHeader
 
     def hash(self):
-        class BlockHash(Serializable):
+        class BlockHash:
             previous_hash = self.previous_hash
             height = self.height
             timestamp = self.timestamp
@@ -53,11 +52,12 @@ class Block(Serializable):
             witnesses = self.witnesses
             transactions_root = self.transactions_root
 
-        block_hash = sha512(BlockHash().serialize())
+        block_hash = sha512(serialize(BlockHash))
         return block_hash
 
     def valid(self):
         assert self.hash() == self.block_hash
+        assert self.previous_hash != self.block_hash
         assert self.transactions_root == merkle_tree(
             [
                 serialize(transaction)

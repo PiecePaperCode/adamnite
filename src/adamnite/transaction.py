@@ -14,7 +14,6 @@ class Transaction:
             message: bytes = b'',
             fee: int = 0,
     ):
-        self.type = 0
         self.sender: bytes = sender.public_account().address
         self.amount = amount
         self.receiver: bytes = receiver.address
@@ -39,11 +38,10 @@ class Transaction:
 
     def header(self):
         class Sign:
-            type = self.type
             sender = self.sender
             amount = self.amount
             receiver = self.receiver
             message = self.message
             fee = self.fee
             nonce = self.nonce
-        return Sign()
+        return Sign

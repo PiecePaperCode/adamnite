@@ -1,4 +1,3 @@
-import os
 import hashlib
 
 from Crypto.Hash import RIPEMD160
@@ -17,7 +16,7 @@ def ripmed160(of: bytes) -> bytes:
     return h.digest()
 
 
-def secp256k1(private_key=os.urandom(32)) -> (bytes, bytes):
+def secp256k1(private_key) -> (bytes, bytes):
     curve = PrivateKey(privkey=private_key)
     private_key: bytes = curve.private_key
     public_key: bytes = curve.pubkey.serialize(compressed=True)
