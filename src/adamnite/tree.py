@@ -3,6 +3,8 @@ from adamnite.crypto import sha512
 
 # https://en.wikipedia.org/wiki/Merkle_tree#/media/File:Hash_Tree.svg
 def merkle_tree(data_blocks: list):
+    if len(data_blocks) == 0:
+        return bytes(32)
     root: [bytes] = [
         sha512(of=item)
         for item in data_blocks

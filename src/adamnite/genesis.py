@@ -20,3 +20,4 @@ GENESIS_BLOCK = Block(
     witnesses=(GENESIS_ACCOUNT.public_account(),),
     transactions=GENESIS_TRANSACTIONS,
 )
+GENESIS_ACCOUNT.nonce = 0
