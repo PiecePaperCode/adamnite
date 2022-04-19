@@ -1,3 +1,5 @@
+from typing import Union
+
 from adamnite.serialization import INT_SIZE, serialize
 
 
@@ -34,7 +36,7 @@ class Request:
 class Response:
     def __init__(
             self,
-            payload: tuple,
+            payload: Union[tuple, list],
     ):
         self.size = (INT_SIZE * 2) + len(serialize(payload))
         self.type: int = RESPONSE

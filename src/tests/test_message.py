@@ -16,7 +16,7 @@ from tests.test_node import connect
 PORT = random.randint(6101, 6198)
 
 
-class TestCrypto(unittest.TestCase):
+class TestMessages(unittest.TestCase):
     block = GENESIS_BLOCK
     sender = PrivateAccount()
     receiver = PrivateAccount().public_account()
@@ -61,12 +61,19 @@ class TestCrypto(unittest.TestCase):
         )
         self.assertEqual(6101, restored_message.payload[0].port)
 
-    node = Node(port=PORT)
-    node.peers = {Peer('::ffff:127.0.0.1', PORT)}
-    loop = asyncio.get_event_loop()
-    loop.create_task(node.start_serving())
+    def setUp(self) -> None:
+        global PORT
+        PORT = random.randint(6101, 6198)
+        self.node = Node(port=PORT)
+        self.node.peers = {Peer('::ffff:127.0.0.1', PORT)}
+        self.loop = asyncio.new_event_loop()
+        self.loop.create_task(self.node.start_serving())
 
-    def disable_test_send_peer_message(self):
+    def tearDown(self) -> None:
+        del self.node
+        self.loop.close()
+
+    def test_send_peer_message(self):
         async def run_test():
             peers = (Peer("::ffff:127.0.0.1", PORT),)
             block_message = await send_message(PEERS, peers)
@@ -75,7 +82,7 @@ class TestCrypto(unittest.TestCase):
         response = self.loop.run_until_complete(run_test())
         self.assertEqual(response[0].ip, '::ffff:127.0.0.1')
 
-    def disable_send_block_message(self):
+    def test_send_block_message(self):
         async def run_test() -> list[Block]:
             block_message = await send_message(BLOCKS, (GENESIS_BLOCK,))
             return block_message.payload
@@ -83,9 +90,7 @@ class TestCrypto(unittest.TestCase):
         blocks = self.loop.run_until_complete(run_test())
         self.assertEqual(blocks[0].height, 0)
 
-    def disable_send_transaction_message(self):
-        self.node.block_chain.pending_transactions.add(GENESIS_TRANSACTION)
-
+    def test_send_transaction_message(self):
         async def run_test() -> set[Transaction]:
             transactions_message = await send_message(
                 TRANSACTIONS,
@@ -93,6 +98,7 @@ class TestCrypto(unittest.TestCase):
             )
             return transactions_message.payload
 
+        self.node.block_chain.pending_transactions.append(GENESIS_TRANSACTION)
         transactions = self.loop.run_until_complete(run_test())
         self.assertEqual(transactions[0], GENESIS_TRANSACTION)
 

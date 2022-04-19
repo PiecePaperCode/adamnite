@@ -1,8 +1,7 @@
 import asyncio
 import time
 
-from adamnite.block import Block
-from adamnite.genesis import GENESIS_BLOCK, GENESIS_TRANSACTION
+from adamnite.genesis import *
 from adamnite.message import *
 from adamnite.logging import logger
 from adamnite.serialization import INT_SIZE, from_number, deserialize, serialize
@@ -96,18 +95,8 @@ class ConnectedPeer:
     def send_blocks(self, message_byte: bytes):
         message, size = deserialize(message_byte, to=Request())
         assert len(message_byte) == size
-        if message.query == SELECT_ALL:
-            blocks: list[Block] = self.node.block_chain.chain
-            response = Response(payload=tuple(blocks))
-            self.writer.write(serialize(response))
-            return
-        blocks = []
-        for height in message.query:
-            height, _ = deserialize(height, to=int())
-            if len(self.node.block_chain.chain) <= height:
-                break
-            blocks.append(self.node.block_chain.chain[height])
-        response = Response(payload=tuple(blocks))
+        blocks: list[Block] = self.node.block_chain.chain
+        response = Response(payload=blocks)
         self.writer.write(serialize(response))
 
     def request_blocks(self):
@@ -123,10 +112,11 @@ class ConnectedPeer:
     def send_transactions(self, message_byte: bytes):
         message, size = deserialize(message_byte, to=Request())
         assert len(message_byte) == size
-        if message.query == SELECT_ALL:
-            transactions = self.node.block_chain.pending_transactions
-            response = Response(payload=tuple(transactions))
-            self.writer.write(serialize(response))
+        transactions: list = self.node.block_chain.pending_transactions
+        if len(transactions) == 0:
+            return
+        response = Response(payload=transactions)
+        self.writer.write(serialize(response))
 
     def request_transactions(self):
         request = Request(resource=TRANSACTIONS, query=SELECT_ALL)
@@ -139,7 +129,8 @@ class ConnectedPeer:
         )
         assert len(message_byte) == size
         for transaction in message.payload:
-            self.node.block_chain.pending_transactions.add(transaction)
+            if transaction not in self.node.block_chain.pending_transactions:
+                self.node.block_chain.pending_transactions.append(transaction)
 
     # __hash__ and __eq__ make Peer comparable to each other
     def __hash__(self):
