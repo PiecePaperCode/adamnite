@@ -22,6 +22,7 @@ class Block(Serializable):
         self.proposer: bytes = proposer.public_account().address
         self.signature: bytes = sign(proposer.private_key, self.proposer)
         self.witnesses = witnesses
+        transactions = sorted(transactions, key=lambda x: x.nonce)
         self.transactions_root: bytes = merkle_tree(
             [
                 serialize(transaction)
@@ -64,6 +65,8 @@ class Block(Serializable):
         )
         assert self.hash() == self.block_hash
         assert self.previous_hash != self.block_hash
+        assert self.transactions == \
+               sorted(self.transactions, key=lambda x: x.nonce)
         assert self.transactions_root == merkle_tree(
             [
                 serialize(transaction)
