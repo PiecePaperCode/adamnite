@@ -1,7 +1,8 @@
 import time
+import base58
 
 from adamnite.account import PrivateAccount
-from adamnite.crypto import sha512, sign
+from adamnite.crypto import sha512, sign, validate
 from adamnite.tree import merkle_tree
 from adamnite.serialization import Serializable, serialize
 
@@ -56,6 +57,11 @@ class Block(Serializable):
         return block_hash
 
     def valid(self):
+        assert validate(
+            public_key=base58.b58decode(self.proposer),
+            signature=self.signature,
+            message=self.proposer
+        )
         assert self.hash() == self.block_hash
         assert self.previous_hash != self.block_hash
         assert self.transactions_root == merkle_tree(
