@@ -1,6 +1,8 @@
 import asyncio
 import time
 
+from adamnite.block import Block
+from adamnite.genesis import GENESIS_BLOCK, GENESIS_TRANSACTION
 from adamnite.message import *
 from adamnite.logging import logger
 from adamnite.serialization import INT_SIZE, from_number, deserialize, serialize
@@ -56,10 +58,14 @@ class ConnectedPeer:
         message, _ = deserialize(message_byte, to=Message())
         handlers = {
             REQUEST: {
-                PEERS: lambda: self.send_connected_peers(message_byte)
+                PEERS: lambda: self.send_connected_peers(message_byte),
+                BLOCKS: lambda: self.send_blocks(message_byte),
+                TRANSACTIONS: lambda: self.send_transactions(message_byte),
             },
             RESPONSE: {
-                PEERS: lambda: self.receive_connected_peers(message_byte)
+                PEERS: lambda: self.receive_connected_peers(message_byte),
+                BLOCKS: lambda: self.receive_blocks(message_byte),
+                TRANSACTIONS: lambda: self.receive_transactions(message_byte),
             }
         }
         valid_type = message.type in handlers
@@ -86,6 +92,54 @@ class ConnectedPeer:
         assert len(message_byte) == size
         for peer in message.payload:
             self.node.peers.add(peer)
+
+    def send_blocks(self, message_byte: bytes):
+        message, size = deserialize(message_byte, to=Request())
+        assert len(message_byte) == size
+        if message.query == SELECT_ALL:
+            blocks: list[Block] = self.node.block_chain.chain
+            response = Response(payload=tuple(blocks))
+            self.writer.write(serialize(response))
+            return
+        blocks = []
+        for height in message.query:
+            height, _ = deserialize(height, to=int())
+            if len(self.node.block_chain.chain) <= height:
+                break
+            blocks.append(self.node.block_chain.chain[height])
+        response = Response(payload=tuple(blocks))
+        self.writer.write(serialize(response))
+
+    def request_blocks(self):
+        request = Request(resource=BLOCKS, query=SELECT_ALL)
+        self.writer.write(serialize(request))
+
+    def receive_blocks(self, message_byte: bytes):
+        message, size = deserialize(message_byte, to=Response((GENESIS_BLOCK,)))
+        assert len(message_byte) == size
+        for block in message.payload:
+            self.node.block_chain.append(block)
+
+    def send_transactions(self, message_byte: bytes):
+        message, size = deserialize(message_byte, to=Request())
+        assert len(message_byte) == size
+        if message.query == SELECT_ALL:
+            transactions = self.node.block_chain.pending_transactions
+            response = Response(payload=tuple(transactions))
+            self.writer.write(serialize(response))
+
+    def request_transactions(self):
+        request = Request(resource=TRANSACTIONS, query=SELECT_ALL)
+        self.writer.write(serialize(request))
+
+    def receive_transactions(self, message_byte: bytes):
+        message, size = deserialize(
+            message_byte,
+            to=Response((GENESIS_TRANSACTION,))
+        )
+        assert len(message_byte) == size
+        for transaction in message.payload:
+            self.node.block_chain.pending_transactions.add(transaction)
 
     # __hash__ and __eq__ make Peer comparable to each other
     def __hash__(self):

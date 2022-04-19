@@ -10,6 +10,7 @@ class BlockChain:
         self.nonce: dict = {}
         self.chain: list[Block] = [GENESIS_BLOCK]
         self.height: int = 0
+        self.pending_transactions = set()
         self.apply_coinbase(GENESIS_BLOCK.proposer)
 
     def append(self, block: Block):

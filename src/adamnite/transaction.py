@@ -45,3 +45,10 @@ class Transaction:
             fee = self.fee
             nonce = self.nonce
         return Sign
+
+    # __hash__ and __eq__ make Peer comparable to each other
+    def __hash__(self):
+        return hash(hash(self.sender) + hash(self.nonce))
+
+    def __eq__(self, other):
+        return self.sender == other.sender and self.nonce == other.nonce
