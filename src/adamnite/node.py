@@ -17,11 +17,11 @@ class Node:
         self.sock.bind(('::', port))
         self.myself = Peer("::ffff:127.0.0.1", port)
         self.peers: set = import_peers()
-        self.connected_peers = set()
+        self.connected_peers: set[ConnectedPeer] = set()
         self.block_chain: BlockChain = BlockChain()
         self.loop = asyncio.get_event_loop()
         self.loop.create_task(self.connect())
-        self.loop.create_task(self.request_peers())
+        self.loop.create_task(self.synchronize())
 
     async def start_serving(self):
         logger.info("Start Serving")
@@ -60,12 +60,18 @@ class Node:
         await asyncio.sleep(3)
         self.loop.create_task(self.connect())
 
-    async def request_peers(self):
+    async def synchronize(self):
         for peer in self.connected_peers:
             peer.request_connected_peers()
+            peer.request_blocks()
+            peer.request_transactions()
         logger.info(f'Currently Connected {len(self.connected_peers)}')
+        logger.info(
+            f'Pending Transactions '
+            f'{len(self.block_chain.pending_transactions)}'
+        )
         await asyncio.sleep(3)
-        self.loop.create_task(self.request_peers())
+        self.loop.create_task(self.synchronize())
 
     def export_peers(self) -> tuple:
         peers = []
