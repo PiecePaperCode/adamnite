@@ -77,3 +77,9 @@ class BlockChain:
             if height == block.height:
                 break
         return blockchain.accounts, blockchain.nonce
+
+    def proof_of_king(self, block):
+        king: bytes = max(self.accounts, key=self.accounts.get)
+        if block.proposer != king:
+            return False
+        return True
