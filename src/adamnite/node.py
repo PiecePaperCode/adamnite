@@ -49,7 +49,7 @@ class Node:
             conn = asyncio.open_connection(peer.ip, peer.port)
             try:
                 reader, writer = await asyncio.wait_for(conn, timeout=TIMEOUT)
-            except ConnectionError:
+            except (ConnectionError, asyncio.TimeoutError):
                 continue
             writer.write(serialize(self.myself.port))
             connected_peer = ConnectedPeer(
