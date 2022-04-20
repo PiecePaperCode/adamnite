@@ -88,7 +88,7 @@ class BlockChain:
         for private_accounts in Wallet.accounts:
             if king == private_accounts.public_account().address:
                 proposer = private_accounts
-        if proposer is None or len(self.pending_transactions) == 0:
+        if proposer is None:
             return
         self.pending_transactions.append(
             Transaction(

@@ -38,6 +38,7 @@ class ConnectedPeer:
     async def incoming(self):
         try:
             await self.receive()
+            await self.writer.drain()
         except (BrokenPipeError, ConnectionError, AssertionError):
             self.connected = False
             self.node.remove_not_connected_peers()

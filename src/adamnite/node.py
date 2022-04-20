@@ -67,6 +67,7 @@ class Node:
             peer.request_connected_peers()
             peer.request_blocks()
             peer.request_transactions()
+            await peer.writer.drain()
         self.block_chain.mint()
         logger.info(f'Currently Connected {len(self.connected_peers)}')
         logger.info(
@@ -75,7 +76,7 @@ class Node:
         )
         logger.info(f'Balance {self.wallet.balance()}')
         logger.info(f'Block Height {self.block_chain.height}')
-        await asyncio.sleep(3)
+        await asyncio.sleep(10)
         self.loop.create_task(self.synchronize())
 
     def export_peers(self) -> tuple:
