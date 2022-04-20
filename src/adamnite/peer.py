@@ -107,6 +107,7 @@ class ConnectedPeer:
         message, size = deserialize(message_byte, to=Response((GENESIS_BLOCK,)))
         assert len(message_byte) == size
         for block in message.payload:
+            assert block.valid()
             self.node.block_chain.append(block)
 
     def send_transactions(self, message_byte: bytes):
@@ -129,6 +130,7 @@ class ConnectedPeer:
         )
         assert len(message_byte) == size
         for transaction in message.payload:
+            assert transaction.valid()
             if transaction not in self.node.block_chain.pending_transactions:
                 self.node.block_chain.pending_transactions.append(transaction)
 
