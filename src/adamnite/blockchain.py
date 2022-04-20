@@ -70,15 +70,6 @@ class BlockChain:
             else:
                 self.accounts[transaction.receiver] += transaction.amount
 
-    def balance_at(self, height):
-        blockchain = BlockChain()
-        for block in self.chain:
-            blockchain.apply_coinbase(block.proposer)
-            blockchain.apply_transactions(block.transactions)
-            if height == block.height:
-                break
-        return blockchain.accounts, blockchain.nonce
-
     def proof_of_king(self, block):
         king: bytes = max(self.accounts, key=self.accounts.get)
         if block.proposer != king:
