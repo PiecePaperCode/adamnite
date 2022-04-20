@@ -49,7 +49,7 @@ class Node:
             conn = asyncio.open_connection(peer.ip, peer.port)
             try:
                 reader, writer = await asyncio.wait_for(conn, timeout=TIMEOUT)
-            except ConnectionError:
+            except (ConnectionError, asyncio.TimeoutError):
                 continue
             writer.write(serialize(self.myself.port))
             connected_peer = ConnectedPeer(
@@ -67,7 +67,7 @@ class Node:
             peer.request_connected_peers()
             peer.request_blocks()
             peer.request_transactions()
-        #self.block_chain.mint()
+        self.block_chain.mint()
         logger.info(f'Currently Connected {len(self.connected_peers)}')
         logger.info(
             f'Pending Transactions '
