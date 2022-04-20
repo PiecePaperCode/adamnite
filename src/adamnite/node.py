@@ -23,9 +23,6 @@ class Node:
         self.wallet: Wallet = Wallet(self.block_chain)
         self.loop = asyncio.get_event_loop()
         self.loop.create_task(self.connect())
-        self.loop.create_task(self.synchronize_peers())
-        self.loop.create_task(self.synchronize_blocks())
-        self.loop.create_task(self.synchronize_transactions())
 
     async def start_serving(self):
         logger.info("Start Serving")
@@ -63,31 +60,6 @@ class Node:
             logger.info(f"Connection to {peer.ip} {peer.port}")
         await asyncio.sleep(3)
         self.loop.create_task(self.connect())
-
-    async def synchronize_peers(self):
-        for peer in self.connected_peers:
-            peer.request_connected_peers()
-        await asyncio.sleep(11)
-        self.loop.create_task(self.synchronize_peers())
-
-    async def synchronize_blocks(self):
-        for peer in self.connected_peers:
-            peer.request_blocks()
-        self.block_chain.mint()
-        logger.info(f'Balance {self.wallet.balance()}')
-        logger.info(f'Block Height {self.block_chain.height}')
-        await asyncio.sleep(5)
-        self.loop.create_task(self.synchronize_blocks())
-
-    async def synchronize_transactions(self):
-        for peer in self.connected_peers:
-            peer.request_transactions()
-        logger.info(
-            f'Pending Transactions '
-            f'{len(self.block_chain.pending_transactions)}'
-        )
-        await asyncio.sleep(21)
-        self.loop.create_task(self.synchronize_transactions())
 
     def export_peers(self) -> tuple:
         peers = []
