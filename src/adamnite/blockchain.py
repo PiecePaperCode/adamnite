@@ -88,6 +88,8 @@ class BlockChain:
         for private_accounts in Wallet.accounts:
             if king == private_accounts.public_account().address:
                 proposer = private_accounts
+        if proposer is None or len(self.pending_transactions) == 0:
+            return
         self.pending_transactions.append(
             Transaction(
                 sender=proposer,
@@ -97,8 +99,6 @@ class BlockChain:
                 amount=1
             )
         )
-        if proposer is None or len(self.pending_transactions) == 0:
-            return
         new_block = Block(
             previous_hash=self.chain[-1].block_hash,
             height=self.height + 1,
