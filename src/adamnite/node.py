@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from socket import socket, AF_INET6, SOCK_STREAM
 
+from adamnite.account import Wallet
 from adamnite.blockchain import BlockChain
 from adamnite.logging import logger
 from adamnite.peer import Peer, ConnectedPeer, TIMEOUT
@@ -19,6 +20,7 @@ class Node:
         self.peers: set = import_peers()
         self.connected_peers: set[ConnectedPeer] = set()
         self.block_chain: BlockChain = BlockChain()
+        self.wallet: Wallet = Wallet(self.block_chain)
         self.loop = asyncio.get_event_loop()
         self.loop.create_task(self.connect())
         self.loop.create_task(self.synchronize())

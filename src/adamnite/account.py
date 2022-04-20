@@ -32,6 +32,8 @@ class PublicAccount:
 
 
 class Wallet:
+    def __init__(self, block_chain=None):
+        self.block_chain = block_chain
     accounts = []
     service_name = "PyAdamnite"
     username = 'wallet'
@@ -41,12 +43,22 @@ class Wallet:
             [PrivateAccount()]
         )
     else:
-        accounts = [PrivateAccount() for i in range(100)]
+        accounts: list[PrivateAccount] = [PrivateAccount() for i in range(100)]
         keyring.set_password(
             service_name,
             username,
             serialize(accounts).hex()
         )
+
+    def balance(self) -> int:
+        if self.block_chain is None:
+            return -1
+        total_balance = 0
+        for account in self.accounts:
+            address = account.public_account().address
+            if address in self.block_chain.accounts:
+                total_balance += self.block_chain.accounts[address]
+        return total_balance
 
     def export_wallet(self, file):
         with open(file, 'wb') as wallet:

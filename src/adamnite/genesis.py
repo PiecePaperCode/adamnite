@@ -5,6 +5,7 @@ from adamnite.transaction import Transaction
 
 COINBASE = 10000
 GENESIS_ACCOUNT = PrivateAccount()
+print(GENESIS_ACCOUNT.private_key, GENESIS_ACCOUNT.public_key)
 GENESIS_TRANSACTION = Transaction(
     sender=GENESIS_ACCOUNT,
     receiver=GENESIS_ACCOUNT.public_account(),
