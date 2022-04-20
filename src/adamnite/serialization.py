@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Literal, Union
 
 
@@ -74,9 +75,10 @@ def deserialize(
         tuple: from_list,
         type: from_class,
     }
-    if type(to) not in types_conversion:
-        return from_class(from_, to)
-    return types_conversion[type(to)](from_, to)
+    to_copy = deepcopy(to)
+    if type(to_copy) not in types_conversion:
+        return from_class(from_, to_copy)
+    return types_conversion[type(to_copy)](from_, to_copy)
 
 
 def from_bytes(from_: bytes, to: bytes) -> (str, int):

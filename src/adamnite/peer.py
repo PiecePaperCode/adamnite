@@ -95,6 +95,11 @@ class ConnectedPeer:
     def send_blocks(self, message_byte: bytes):
         message, size = deserialize(message_byte, to=Request())
         assert len(message_byte) == size
+        if message.query[0] == SELECT_ALL[0] and len(message.query) == 1:
+            blocks: list[Block] = self.node.block_chain.chain
+            response = Response(payload=blocks)
+            self.writer.write(serialize(response))
+            return
         blocks: list[Block] = []
         for height in message.query:
             if self.node.block_chain.height < height:
@@ -106,16 +111,13 @@ class ConnectedPeer:
         self.writer.write(serialize(response))
 
     def request_blocks(self):
-        current_height = self.node.block_chain.height
-        query = tuple(range(current_height, current_height + 100))
-        request = Request(resource=BLOCKS, query=query)
+        request = Request(resource=BLOCKS, query=SELECT_ALL)
         self.writer.write(serialize(request))
 
     def receive_blocks(self, message_byte: bytes):
         message, size = deserialize(message_byte, to=Response((GENESIS_BLOCK,)))
         assert len(message_byte) == size
         for block in message.payload:
-            assert block.valid()
             self.node.block_chain.append(block)
 
     def send_transactions(self, message_byte: bytes):

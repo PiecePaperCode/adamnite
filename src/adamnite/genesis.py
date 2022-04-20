@@ -24,6 +24,7 @@ GENESIS_BLOCK: Block = Block(
     witnesses=(GENESIS_ACCOUNT.public_account(),),
     transactions=GENESIS_TRANSACTIONS,
 )
+assert GENESIS_BLOCK.valid()
 ADAMNITE_GENESIS_BLOCK: Block = deepcopy(GENESIS_BLOCK)
 ADAMNITE_GENESIS_BLOCK, size = deserialize(
     b'\x00\x00\x00@\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'

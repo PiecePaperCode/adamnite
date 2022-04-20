@@ -3,7 +3,7 @@ from typing import Union
 
 from adamnite.account import Wallet, PrivateAccount, PublicAccount
 from adamnite.block import Block
-from adamnite.genesis import COINBASE, ADAMNITE_GENESIS_BLOCK
+from adamnite.genesis import COINBASE, ADAMNITE_GENESIS_BLOCK, GENESIS_BLOCK
 from adamnite.transaction import Transaction
 
 
