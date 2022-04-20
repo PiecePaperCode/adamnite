@@ -1,4 +1,6 @@
 import time
+from typing import Union
+
 import base58
 
 from adamnite.account import PrivateAccount
@@ -14,7 +16,7 @@ class Block(Serializable):
             height: int,
             proposer: PrivateAccount,
             witnesses: tuple = (),
-            transactions: tuple = (),
+            transactions: Union[tuple, list] = (),
     ):
         self.previous_hash = previous_hash
         self.height = height

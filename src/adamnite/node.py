@@ -67,11 +67,14 @@ class Node:
             peer.request_connected_peers()
             peer.request_blocks()
             peer.request_transactions()
+        # self.block_chain.mint()
         logger.info(f'Currently Connected {len(self.connected_peers)}')
         logger.info(
             f'Pending Transactions '
             f'{len(self.block_chain.pending_transactions)}'
         )
+        logger.info(f'Balance {self.wallet.balance()}')
+        logger.info(f'Block Height {self.block_chain.height}')
         await asyncio.sleep(3)
         self.loop.create_task(self.synchronize())
 

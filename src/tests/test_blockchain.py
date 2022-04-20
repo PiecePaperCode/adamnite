@@ -3,14 +3,14 @@ import unittest
 from adamnite.account import PrivateAccount
 from adamnite.block import Block
 from adamnite.blockchain import BlockChain
-from adamnite.genesis import GENESIS_BLOCK, GENESIS_ACCOUNT, COINBASE
+from adamnite.genesis import GENESIS_ACCOUNT, COINBASE, GENESIS_BLOCK
 from adamnite.transaction import Transaction
 
 
 class TestBlock(unittest.TestCase):
 
     def test_generate_valid_blockchain(self):
-        block_chain = BlockChain()
+        block_chain = BlockChain(GENESIS_BLOCK)
         previous_hash = GENESIS_BLOCK.block_hash
         for i in range(1, 100):
             new_block = generate_random_block(

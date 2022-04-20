@@ -29,4 +29,3 @@ class TestAccount(unittest.TestCase):
             ]
         ))
         self.assertEqual(self.wallet.balance(), 100)
-        self.wallet.delete_wallet()

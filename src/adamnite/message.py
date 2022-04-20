@@ -11,7 +11,7 @@ ACCOUNTS = 3
 REQUEST = 0
 RESPONSE = 1
 
-SELECT_ALL: tuple = (b'0',)
+SELECT_ALL: tuple[int] = (0,)
 
 
 class Message:
@@ -25,7 +25,7 @@ class Request:
     def __init__(
             self,
             resource: int = PEERS,
-            query: tuple = SELECT_ALL,
+            query: tuple[int] = SELECT_ALL,
     ):
         self.size: int = (INT_SIZE * 2) + len(serialize(query))
         self.type: int = REQUEST

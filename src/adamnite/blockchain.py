@@ -1,17 +1,21 @@
 from copy import deepcopy
+from typing import Union
+
+from adamnite.account import Wallet, PrivateAccount, PublicAccount
 from adamnite.block import Block
-from adamnite.genesis import GENESIS_BLOCK, COINBASE
+from adamnite.genesis import COINBASE, ADAMNITE_GENESIS_BLOCK
 from adamnite.transaction import Transaction
 
 
 class BlockChain:
-    def __init__(self):
+    def __init__(self, genesis_block=ADAMNITE_GENESIS_BLOCK):
         self.accounts: dict = {}
         self.nonce: dict = {}
-        self.chain: list[Block] = [GENESIS_BLOCK]
+        self.chain: list[Block] = [genesis_block]
         self.height: int = 0
         self.pending_transactions: list[Transaction] = []
-        self.apply_coinbase(GENESIS_BLOCK.proposer)
+        self.apply_coinbase(genesis_block.proposer)
+        self.apply_transactions(genesis_block.transactions)
 
     def append(self, block: Block):
         self.chain.append(block)
@@ -69,9 +73,37 @@ class BlockChain:
                 self.nonce[transaction.receiver] = 0
             else:
                 self.accounts[transaction.receiver] += transaction.amount
+            if transaction in self.pending_transactions:
+                self.pending_transactions.remove(transaction)
 
     def proof_of_king(self, block):
         king: bytes = max(self.accounts, key=self.accounts.get)
         if block.proposer != king:
             return False
         return True
+
+    def mint(self):
+        king: bytes = max(self.accounts, key=self.accounts.get)
+        proposer: Union[PrivateAccount, None] = None
+        for private_accounts in Wallet.accounts:
+            if king == private_accounts.public_account().address:
+                proposer = private_accounts
+        self.pending_transactions.append(
+            Transaction(
+                sender=proposer,
+                receiver=PublicAccount(
+                    address='tMp7D2xEDVD3aDwcqKDeCLurmnvLM42YRVKMgYNDTip2'
+                ),
+                amount=1
+            )
+        )
+        if proposer is None or len(self.pending_transactions) == 0:
+            return
+        new_block = Block(
+            previous_hash=self.chain[-1].block_hash,
+            height=self.height + 1,
+            proposer=proposer,
+            witnesses=(proposer.public_account(),),
+            transactions=self.pending_transactions,
+        )
+        self.append(new_block)

@@ -63,7 +63,7 @@ class TestMessages(unittest.TestCase):
 
     def setUp(self) -> None:
         global PORT
-        PORT = random.randint(6101, 6198)
+        PORT = random.randint(6101, 7000)
         self.node = Node(port=PORT)
         self.node.peers = {Peer('::ffff:127.0.0.1', PORT)}
         self.loop = asyncio.new_event_loop()
