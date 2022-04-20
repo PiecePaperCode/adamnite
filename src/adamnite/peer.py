@@ -7,7 +7,7 @@ from adamnite.logging import logger
 from adamnite.serialization import INT_SIZE, from_number, deserialize, serialize
 
 
-TIMEOUT = 0.3
+TIMEOUT = 1
 
 
 class Peer:
