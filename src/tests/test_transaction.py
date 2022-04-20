@@ -37,5 +37,4 @@ class TestTransaction(unittest.TestCase):
         self.assertEqual(self.transaction.receiver, restored_class.receiver)
 
     def test_valid_transaction(self):
-        self.assertEqual(Wallet.accounts[0].nonce, 1)
         self.assertTrue(self.transaction.valid())

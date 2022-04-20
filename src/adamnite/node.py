@@ -67,7 +67,7 @@ class Node:
             peer.request_connected_peers()
             peer.request_blocks()
             peer.request_transactions()
-        # self.block_chain.mint()
+        #self.block_chain.mint()
         logger.info(f'Currently Connected {len(self.connected_peers)}')
         logger.info(
             f'Pending Transactions '
