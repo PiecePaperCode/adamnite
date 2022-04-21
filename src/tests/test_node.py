@@ -10,10 +10,14 @@ PORT = random.randint(6101, 6199)
 
 
 class TestNode(unittest.TestCase):
-    node = Node(port=PORT)
-    node.peers = {Peer('::ffff:127.0.0.1', PORT)}
-    loop = asyncio.get_event_loop()
-    loop.create_task(node.start_serving())
+
+    def setUp(self) -> None:
+        global PORT
+        PORT = random.randint(6101, 7000)
+        self.node = Node(port=PORT)
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+        self.loop.create_task(self.node.start_serving())
 
     def test_server_serving(self):
         async def run_test(port=PORT):
@@ -42,11 +46,32 @@ class TestNode(unittest.TestCase):
         self.loop.create_task(node4.start_serving())
 
         async def until():
-            while len(self.node.connected_peers) != 3:
-                await asyncio.sleep(TIMEOUT)
+            while len(self.node.connected_peers) < 3:
+                await asyncio.sleep(0.5)
 
         self.loop.run_until_complete(asyncio.wait_for(until(), 20))
-        self.assertEqual(len(self.node.connected_peers), 3)
+        self.assertGreater(len(node4.connected_peers), 2)
+
+    def test_peers_sync_blocks(self):
+        port2 = random.randint(6200, 6300)
+        node2 = Node(port2)
+        node2.peers.add(Peer('::ffff:127.0.0.1', PORT))
+        self.loop.create_task(node2.start_serving())
+        port3 = random.randint(6300, 6400)
+        node3 = Node(port3)
+        node3.peers.add(Peer('::ffff:127.0.0.1', port2))
+        self.loop.create_task(node3.start_serving())
+        port4 = random.randint(6400, 6500)
+        node4 = Node(port4)
+        node4.peers.add(Peer('::ffff:127.0.0.1', port3))
+        self.loop.create_task(node4.start_serving())
+
+        async def until():
+            while len(self.node.connected_peers) < 3:
+                await asyncio.sleep(0.5)
+
+        self.loop.run_until_complete(asyncio.wait_for(until(), 20))
+        self.assertGreater(len(node4.connected_peers), 2)
 
 
 async def connect(port=6101):

@@ -12,17 +12,18 @@ class TestBlock(unittest.TestCase):
     def test_generate_valid_blockchain(self):
         block_chain = BlockChain(GENESIS_BLOCK)
         previous_hash = GENESIS_BLOCK.block_hash
-        for i in range(1, 100):
+        for i in range(1, 99):
             new_block = generate_random_block(
                 previous_hash=previous_hash,
                 height=i
             )
             block_chain.append(new_block)
             previous_hash = new_block.block_hash
-        self.assertEqual(len(block_chain.chain), 100)
+        self.assertEqual(99, len(block_chain.chain))
+        self.assertEqual(98, block_chain.height)
         self.assertEqual(
-            block_chain.accounts[GENESIS_ACCOUNT.public_account().address],
-            (100 * COINBASE) - (10 * 100 * 99)
+            (99 * COINBASE) - (10 * 100 * 98),
+            block_chain.accounts[GENESIS_ACCOUNT.public_account().address]
         )
 
     def disable_test_mint_new_block(self):

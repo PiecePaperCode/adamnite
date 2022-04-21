@@ -34,9 +34,6 @@ class ConnectedPeer:
         self.connected = True
         self.loop = asyncio.get_event_loop()
         self.loop.create_task(self.incoming())
-        self.loop.create_task(self.synchronize_peers())
-        self.loop.create_task(self.synchronize_blocks())
-        self.loop.create_task(self.synchronize_transactions())
 
     async def incoming(self):
         try:
@@ -78,30 +75,6 @@ class ConnectedPeer:
         handler()
         self.last_seen = int(time.time())
 
-    async def synchronize_peers(self):
-        self.request_connected_peers()
-        await asyncio.sleep(10)
-        if self.connected:
-            self.loop.create_task(self.synchronize_peers())
-
-    async def synchronize_blocks(self):
-        self.request_blocks()
-        logger.info(f'Balance {self.node.wallet.balance()}')
-        logger.info(f'Block Height {self.node.block_chain.height}')
-        await asyncio.sleep(5)
-        if self.connected:
-            self.loop.create_task(self.synchronize_blocks())
-
-    async def synchronize_transactions(self):
-        self.request_transactions()
-        logger.info(
-            f'Pending Transactions '
-            f'{len(self.node.block_chain.pending_transactions)}'
-        )
-        await asyncio.sleep(40)
-        if self.connected:
-            self.loop.create_task(self.synchronize_transactions())
-
     def send_connected_peers(self, message_byte: bytes):
         message, size = deserialize(message_byte, to=Request())
         assert len(message_byte) == size
@@ -122,19 +95,7 @@ class ConnectedPeer:
     def send_blocks(self, message_byte: bytes):
         message, size = deserialize(message_byte, to=Request())
         assert len(message_byte) == size
-        if message.query[0] == SELECT_ALL[0] and len(message.query) == 1:
-            blocks: list[Block] = self.node.block_chain.chain
-            response = Response(payload=blocks)
-            self.writer.write(serialize(response))
-            return
-        blocks: list[Block] = []
-        for height in message.query:
-            if self.node.block_chain.height < height:
-                break
-            blocks.append(self.node.block_chain.chain[height])
-        if len(blocks) == 0:
-            return
-        response = Response(payload=blocks)
+        response = Response(payload=self.node.block_chain.chain)
         self.writer.write(serialize(response))
 
     def request_blocks(self):
@@ -145,7 +106,6 @@ class ConnectedPeer:
         message, size = deserialize(message_byte, to=Response((GENESIS_BLOCK,)))
         assert len(message_byte) == size
         for block in message.payload:
-            print(block)
             self.node.block_chain.append(block)
 
     def send_transactions(self, message_byte: bytes):

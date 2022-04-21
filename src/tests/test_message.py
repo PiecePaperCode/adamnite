@@ -5,8 +5,7 @@ import random
 from adamnite.account import PrivateAccount
 from adamnite.block import Block
 from adamnite.blockchain import BlockChain
-from adamnite.genesis import GENESIS_BLOCK, GENESIS_TRANSACTION, \
-    GENESIS_ACCOUNT, COINBASE
+from adamnite.genesis import GENESIS_BLOCK, GENESIS_TRANSACTION, GENESIS_ACCOUNT
 from adamnite.message import *
 from adamnite.node import Node
 from adamnite.peer import Peer, TIMEOUT
@@ -31,9 +30,11 @@ class TestMessages(unittest.TestCase):
     def setUp(self) -> None:
         global PORT
         PORT = random.randint(6101, 7000)
+        GENESIS_ACCOUNT.nonce = 0
         self.node = Node(port=PORT)
         self.node.block_chain = BlockChain(GENESIS_BLOCK)
-        self.loop = asyncio.get_event_loop()
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
         self.loop.create_task(self.node.start_serving())
 
     def test_transaction_message(self):
@@ -78,7 +79,7 @@ class TestMessages(unittest.TestCase):
             return block_message.payload
 
         response = self.loop.run_until_complete(run_test())
-        self.assertEqual(response[0].ip, '::ffff:127.0.0.1')
+        self.assertEqual('::ffff:127.0.0.1', response[0].ip)
 
     def test_send_block_message(self):
         async def run_test() -> list[Block]:
@@ -100,7 +101,7 @@ class TestMessages(unittest.TestCase):
         transactions = self.loop.run_until_complete(run_test())
         self.assertEqual(transactions[0], GENESIS_TRANSACTION)
 
-    def disable_test_send_block_response(self):
+    def test_send_block_response(self):
         async def run_test():
             previous_hash = GENESIS_BLOCK.block_hash
             reader, writer = await connect(PORT)
@@ -114,9 +115,11 @@ class TestMessages(unittest.TestCase):
                 previous_hash = new_block.block_hash
             response = Response(blocks)
             writer.write(serialize(response))
-            while len(self.node.block_chain.chain) < 99:
+            await writer.drain()
+            while self.node.block_chain.height != 98:
                 await asyncio.sleep(0.1)
 
+        print(self.node.block_chain.height)
         self.loop.run_until_complete(asyncio.wait_for(run_test(), 10))
         self.assertEqual(self.node.block_chain.height, 98)
 

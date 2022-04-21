@@ -38,3 +38,14 @@ class TestTransaction(unittest.TestCase):
 
     def test_valid_transaction(self):
         self.assertTrue(self.transaction.valid())
+
+    def test_transaction_equality(self):
+        self.private_account.nonce = 0
+        transaction2 = Transaction(
+            sender=self.private_account,
+            receiver=self.private_account.public_account(),
+            amount=100,
+            fee=1,
+            message=b'Test Transaction'
+        )
+        self.assertTrue(self.transaction == transaction2)
