@@ -43,7 +43,6 @@ class BlockChain:
             nonce[transaction.sender] += 1
             total = transaction.amount + transaction.fee
             if transaction.sender not in self.accounts:
-                print('sender not in accounts')
                 return False
             elif self.accounts[transaction.sender] <= total:
                 return False

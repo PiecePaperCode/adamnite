@@ -119,7 +119,6 @@ class TestMessages(unittest.TestCase):
             while self.node.block_chain.height != 98:
                 await asyncio.sleep(0.1)
 
-        print(self.node.block_chain.height)
         self.loop.run_until_complete(asyncio.wait_for(run_test(), 10))
         self.assertEqual(self.node.block_chain.height, 98)
 
