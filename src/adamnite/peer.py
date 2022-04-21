@@ -7,7 +7,7 @@ from adamnite.logging import logger
 from adamnite.serialization import INT_SIZE, from_number, deserialize, serialize
 
 
-TIMEOUT = 0.3
+TIMEOUT = 1
 
 
 class Peer:
@@ -34,6 +34,9 @@ class ConnectedPeer:
         self.connected = True
         self.loop = asyncio.get_event_loop()
         self.loop.create_task(self.incoming())
+        self.loop.create_task(self.synchronize_peers())
+        self.loop.create_task(self.synchronize_blocks())
+        self.loop.create_task(self.synchronize_transactions())
 
     async def incoming(self):
         try:
@@ -74,6 +77,30 @@ class ConnectedPeer:
         handler = handlers[message.type][message.resource]
         handler()
         self.last_seen = int(time.time())
+
+    async def synchronize_peers(self):
+        self.request_connected_peers()
+        await asyncio.sleep(10)
+        if self.connected:
+            self.loop.create_task(self.synchronize_peers())
+
+    async def synchronize_blocks(self):
+        self.request_blocks()
+        logger.info(f'Balance {self.node.wallet.balance()}')
+        logger.info(f'Block Height {self.node.block_chain.height}')
+        await asyncio.sleep(5)
+        if self.connected:
+            self.loop.create_task(self.synchronize_blocks())
+
+    async def synchronize_transactions(self):
+        self.request_transactions()
+        logger.info(
+            f'Pending Transactions '
+            f'{len(self.node.block_chain.pending_transactions)}'
+        )
+        await asyncio.sleep(40)
+        if self.connected:
+            self.loop.create_task(self.synchronize_transactions())
 
     def send_connected_peers(self, message_byte: bytes):
         message, size = deserialize(message_byte, to=Request())
@@ -118,6 +145,7 @@ class ConnectedPeer:
         message, size = deserialize(message_byte, to=Response((GENESIS_BLOCK,)))
         assert len(message_byte) == size
         for block in message.payload:
+            print(block)
             self.node.block_chain.append(block)
 
     def send_transactions(self, message_byte: bytes):
