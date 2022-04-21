@@ -25,6 +25,11 @@ class TestBlock(unittest.TestCase):
             (100 * COINBASE) - (10 * 100 * 99)
         )
 
+    def disable_test_mint_new_block(self):
+        block_chain = BlockChain(GENESIS_BLOCK)
+        block_chain.mint(GENESIS_ACCOUNT)
+        self.assertEqual(2, len(block_chain.chain))
+
 
 def generate_random_block(previous_hash: bytes, height: int) -> Block:
     assert len(previous_hash) == 64

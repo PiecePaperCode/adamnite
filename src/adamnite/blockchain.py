@@ -82,13 +82,9 @@ class BlockChain:
             return False
         return True
 
-    def mint(self):
+    def mint(self, proposer: PrivateAccount):
         king: bytes = max(self.accounts, key=self.accounts.get)
-        proposer: Union[PrivateAccount, None] = None
-        for private_accounts in Wallet.accounts:
-            if king == private_accounts.public_account().address:
-                proposer = private_accounts
-        if proposer is None or len(self.pending_transactions) == 0:
+        if proposer != king:
             return
         self.pending_transactions.append(
             Transaction(
