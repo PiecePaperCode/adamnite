@@ -82,17 +82,9 @@ class BlockChain:
 
     def mint(self, proposer: PrivateAccount):
         king: bytes = max(self.accounts, key=self.accounts.get)
-        if proposer != king:
+        if proposer.public_account().address != king \
+                or len(self.pending_transactions) == 0:
             return
-        self.pending_transactions.append(
-            Transaction(
-                sender=proposer,
-                receiver=PublicAccount(
-                    address='tMp7D2xEDVD3aDwcqKDeCLurmnvLM42YRVKMgYNDTip2'
-                ),
-                amount=1
-            )
-        )
         new_block = Block(
             previous_hash=self.chain[-1].block_hash,
             height=self.height + 1,

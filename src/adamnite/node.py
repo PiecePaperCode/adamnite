@@ -7,6 +7,7 @@ from socket import socket, AF_INET6, SOCK_STREAM
 
 from adamnite.account import Wallet
 from adamnite.blockchain import BlockChain
+from adamnite.genesis import GENESIS_ACCOUNT
 from adamnite.logging import logger
 from adamnite.peer import Peer, ConnectedPeer, TIMEOUT
 from adamnite.serialization import INT_SIZE, serialize, deserialize
@@ -63,6 +64,7 @@ class Node:
         self.loop.create_task(self.connect())
 
     async def synchronize(self):
+        self.block_chain.mint(GENESIS_ACCOUNT)
         for peer in self.connected_peers:
             peer.request_connected_peers()
             peer.request_blocks()

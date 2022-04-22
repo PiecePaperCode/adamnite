@@ -9,6 +9,9 @@ from adamnite.transaction import Transaction
 
 class TestBlock(unittest.TestCase):
 
+    def setUp(self) -> None:
+        GENESIS_ACCOUNT.nonce = 1
+
     def test_generate_valid_blockchain(self):
         block_chain = BlockChain(GENESIS_BLOCK)
         previous_hash = GENESIS_BLOCK.block_hash
@@ -22,14 +25,23 @@ class TestBlock(unittest.TestCase):
         self.assertEqual(99, len(block_chain.chain))
         self.assertEqual(98, block_chain.height)
         self.assertEqual(
-            (99 * COINBASE) - (10 * 100 * 98),
+            892000,
             block_chain.accounts[GENESIS_ACCOUNT.public_account().address]
         )
 
-    def disable_test_mint_new_block(self):
+    def test_mint_new_block(self):
         block_chain = BlockChain(GENESIS_BLOCK)
+        receiver = PrivateAccount()
+        block_chain.pending_transactions.append(
+            Transaction(
+                sender=GENESIS_ACCOUNT,
+                receiver=receiver.public_account(),
+                amount=1
+            )
+        )
         block_chain.mint(GENESIS_ACCOUNT)
         self.assertEqual(2, len(block_chain.chain))
+        self.assertEqual(0, len(block_chain.pending_transactions))
 
 
 def generate_random_block(previous_hash: bytes, height: int) -> Block:
