@@ -7,8 +7,8 @@ from socket import socket, AF_INET6, SOCK_STREAM
 
 from adamnite.account import Wallet
 from adamnite.blockchain import BlockChain
-from adamnite.genesis import GENESIS_ACCOUNT
 from adamnite.logging import logger
+from adamnite.message import Response
 from adamnite.peer import Peer, ConnectedPeer, TIMEOUT
 from adamnite.serialization import INT_SIZE, serialize, deserialize
 
@@ -24,6 +24,7 @@ class Node:
         self.wallet: Wallet = Wallet(self.block_chain)
         self.loop = asyncio.get_event_loop()
         self.loop.create_task(self.connect())
+        self.loop.create_task(self.mint())
         self.loop.create_task(self.synchronize())
 
     async def start_serving(self):
@@ -63,11 +64,16 @@ class Node:
         await asyncio.sleep(3)
         self.loop.create_task(self.connect())
 
-    async def synchronize(self):
+    async def mint(self):
         self.block_chain.mint()
+        response = Response(payload=self.block_chain.chain)
+        self.broadcast(serialize(response))
+        await asyncio.sleep(3)
+        self.loop.create_task(self.mint())
+
+    async def synchronize(self):
         for peer in self.connected_peers:
             peer.request_connected_peers()
-            peer.request_blocks()
             peer.request_transactions()
         logger.info(f'Currently Connected {len(self.connected_peers)}')
         logger.info(
@@ -78,6 +84,10 @@ class Node:
         logger.info(f'Block Height {self.block_chain.height}')
         await asyncio.sleep(3)
         self.loop.create_task(self.synchronize())
+
+    def broadcast(self, message: bytes):
+        for peer in self.connected_peers:
+            peer.writer.write(message)
 
     def export_peers(self) -> tuple:
         peers = []
