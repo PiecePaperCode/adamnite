@@ -13,7 +13,7 @@ class TestBlock(unittest.TestCase):
         GENESIS_ACCOUNT.nonce = 1
 
     def test_generate_valid_blockchain(self):
-        block_chain = BlockChain(GENESIS_BLOCK)
+        block_chain = BlockChain(GENESIS_ACCOUNT, GENESIS_BLOCK)
         previous_hash = GENESIS_BLOCK.block_hash
         for i in range(1, 99):
             new_block = generate_random_block(
@@ -30,7 +30,7 @@ class TestBlock(unittest.TestCase):
         )
 
     def test_mint_new_block(self):
-        block_chain = BlockChain(GENESIS_BLOCK)
+        block_chain = BlockChain(GENESIS_ACCOUNT, GENESIS_BLOCK)
         receiver = PrivateAccount()
         block_chain.pending_transactions.append(
             Transaction(
@@ -39,7 +39,7 @@ class TestBlock(unittest.TestCase):
                 amount=1
             )
         )
-        block_chain.mint(GENESIS_ACCOUNT)
+        block_chain.mint()
         self.assertEqual(2, len(block_chain.chain))
         self.assertEqual(0, len(block_chain.pending_transactions))
 

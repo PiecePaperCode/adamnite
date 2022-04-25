@@ -32,7 +32,7 @@ class TestMessages(unittest.TestCase):
         PORT = random.randint(6101, 7000)
         GENESIS_ACCOUNT.nonce = 0
         self.node = Node(port=PORT)
-        self.node.block_chain = BlockChain(GENESIS_BLOCK)
+        self.node.block_chain = BlockChain(GENESIS_ACCOUNT, GENESIS_BLOCK)
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
         self.loop.create_task(self.node.start_serving())

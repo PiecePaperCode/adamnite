@@ -10,7 +10,7 @@ from adamnite.peer import Peer, TIMEOUT
 from adamnite.serialization import serialize
 from adamnite.transaction import Transaction
 
-PORT = random.randint(6101, 6199)
+PORT = random.randint(6101, 6299)
 
 
 class TestNode(unittest.TestCase):
@@ -20,7 +20,7 @@ class TestNode(unittest.TestCase):
         GENESIS_ACCOUNT.nonce = 1
         PORT = random.randint(6101, 7000)
         self.node = Node(port=PORT)
-        self.node.block_chain = BlockChain(GENESIS_BLOCK)
+        self.node.block_chain = BlockChain(PrivateAccount(), GENESIS_BLOCK)
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
         self.loop.create_task(self.node.start_serving())
@@ -46,8 +46,15 @@ class TestNode(unittest.TestCase):
         port2 = random.randint(6200, 6300)
         node2 = Node(port2)
         node2.peers.add(Peer('::ffff:127.0.0.1', PORT))
-        node2.block_chain = BlockChain(GENESIS_BLOCK)
+        node2.block_chain = BlockChain(GENESIS_ACCOUNT, GENESIS_BLOCK)
         receiver = PrivateAccount()
+        node2.block_chain.pending_transactions.append(
+            Transaction(
+                sender=GENESIS_ACCOUNT,
+                receiver=receiver.public_account(),
+                amount=1
+            )
+        )
         node2.block_chain.pending_transactions.append(
             Transaction(
                 sender=GENESIS_ACCOUNT,
@@ -59,12 +66,12 @@ class TestNode(unittest.TestCase):
         port3 = random.randint(6300, 6400)
         node3 = Node(port3)
         node3.peers.add(Peer('::ffff:127.0.0.1', port2))
-        node3.block_chain = BlockChain(GENESIS_BLOCK)
+        node3.block_chain = BlockChain(PrivateAccount(), GENESIS_BLOCK)
         self.loop.create_task(node3.start_serving())
         port4 = random.randint(6400, 6500)
         node4 = Node(port4)
         node4.peers.add(Peer('::ffff:127.0.0.1', port3))
-        node4.block_chain = BlockChain(GENESIS_BLOCK)
+        node4.block_chain = BlockChain(PrivateAccount(), GENESIS_BLOCK)
         self.loop.create_task(node4.start_serving())
 
         async def until():

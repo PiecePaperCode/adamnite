@@ -1,16 +1,21 @@
 from copy import deepcopy
-from adamnite.account import PrivateAccount, PublicAccount
+from adamnite.account import PrivateAccount, Wallet
 from adamnite.block import Block
 from adamnite.genesis import COINBASE, ADAMNITE_GENESIS_BLOCK
 from adamnite.transaction import Transaction
 
 
 class BlockChain:
-    def __init__(self, genesis_block=ADAMNITE_GENESIS_BLOCK):
+    def __init__(
+        self,
+        proposer=Wallet.accounts[0],
+        genesis_block=ADAMNITE_GENESIS_BLOCK,
+    ):
+        self.proposer: PrivateAccount = proposer
+        self.height: int = 0
         self.accounts: dict = {}
         self.nonce: dict = {}
         self.chain: list[Block] = [genesis_block]
-        self.height: int = 0
         self.pending_transactions: list[Transaction] = []
         self.apply_coinbase(genesis_block.proposer)
         self.apply_transactions(genesis_block.transactions)
@@ -26,9 +31,9 @@ class BlockChain:
         self.apply_transactions(block.transactions)
 
     def valid(self, after_height=0):
-        for i in range(after_height+1, len(self.chain)):
+        for i in range(after_height + 1, len(self.chain)):
             block = self.chain[i]
-            previous_block = self.chain[i-1]
+            previous_block = self.chain[i - 1]
             if not block.previous_hash == previous_block.block_hash \
                     or not block.height - 1 == previous_block.height \
                     or not block.valid() \
@@ -80,16 +85,16 @@ class BlockChain:
             return False
         return True
 
-    def mint(self, proposer: PrivateAccount):
+    def mint(self):
         king: bytes = max(self.accounts, key=self.accounts.get)
-        if proposer.public_account().address != king \
+        if self.proposer.public_account().address != king \
                 or len(self.pending_transactions) == 0:
             return
         new_block = Block(
             previous_hash=self.chain[-1].block_hash,
             height=self.height + 1,
-            proposer=proposer,
-            witnesses=(proposer.public_account(),),
+            proposer=self.proposer,
+            witnesses=(self.proposer.public_account(),),
             transactions=self.pending_transactions,
         )
         self.append(new_block)

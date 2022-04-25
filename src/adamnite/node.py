@@ -64,7 +64,7 @@ class Node:
         self.loop.create_task(self.connect())
 
     async def synchronize(self):
-        self.block_chain.mint(GENESIS_ACCOUNT)
+        self.block_chain.mint()
         for peer in self.connected_peers:
             peer.request_connected_peers()
             peer.request_blocks()
