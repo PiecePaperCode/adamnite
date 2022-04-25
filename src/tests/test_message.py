@@ -83,7 +83,11 @@ class TestMessages(unittest.TestCase):
 
     def test_send_block_message(self):
         async def run_test() -> list[Block]:
-            block_message = await send_message(BLOCKS, (GENESIS_BLOCK,))
+            block_message = await send_message(
+                BLOCKS,
+                (GENESIS_BLOCK,),
+                query=[0]
+            )
             return block_message.payload
 
         blocks = self.loop.run_until_complete(run_test())
@@ -123,10 +127,10 @@ class TestMessages(unittest.TestCase):
         self.assertEqual(self.node.block_chain.height, 98)
 
 
-async def send_message(resource: int, payload_type: tuple):
+async def send_message(resource: int, payload_type: tuple, query=SELECT_ALL):
     message = Request(
         resource=resource,
-        query=SELECT_ALL
+        query=query
     )
     reader, writer = await connect(PORT)
     writer.write(serialize(message))
