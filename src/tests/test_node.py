@@ -79,7 +79,7 @@ class TestNode(unittest.TestCase):
                 await asyncio.sleep(0.5)
 
         self.loop.run_until_complete(asyncio.wait_for(until(), 20))
-        self.assertEqual(1, node2.block_chain.height)
+        self.assertEqual(1, node4.block_chain.height)
         self.assertEqual(0, len(node2.block_chain.pending_transactions))
         self.assertGreater(len(node4.connected_peers), 2)
 
