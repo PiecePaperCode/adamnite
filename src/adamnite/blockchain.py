@@ -20,17 +20,18 @@ class BlockChain:
         self.apply_coinbase(genesis_block.proposer)
         self.apply_transactions(genesis_block.transactions)
 
-    def append(self, block: Block):
+    def append(self, block: Block) -> bool:
         self.chain.append(block)
         if not self.valid(after_height=self.height):
             self.chain.pop()
-            return
+            return False
         self.height += 1
         assert self.height == len(self.chain) - 1
         self.apply_coinbase(block.proposer)
         self.apply_transactions(block.transactions)
+        return True
 
-    def valid(self, after_height=0):
+    def valid(self, after_height=0) -> bool:
         for i in range(after_height + 1, len(self.chain)):
             block = self.chain[i]
             previous_block = self.chain[i - 1]
@@ -42,7 +43,7 @@ class BlockChain:
                 return False
         return True
 
-    def valid_transactions(self, transactions: tuple[Transaction]):
+    def valid_transactions(self, transactions: tuple[Transaction]) -> bool:
         nonce = deepcopy(self.nonce)
         for transaction in transactions:
             nonce[transaction.sender] += 1
@@ -79,17 +80,17 @@ class BlockChain:
             if transaction in self.pending_transactions:
                 self.pending_transactions.remove(transaction)
 
-    def proof_of_king(self, block):
+    def proof_of_king(self, block) -> bool:
         king: bytes = max(self.accounts, key=self.accounts.get)
         if block.proposer != king:
             return False
         return True
 
-    def mint(self):
+    def mint(self) -> bool:
         king: bytes = max(self.accounts, key=self.accounts.get)
         if self.proposer.public_account().address != king \
                 or len(self.pending_transactions) == 0:
-            return
+            return False
         new_block = Block(
             previous_hash=self.chain[-1].block_hash,
             height=self.height + 1,
@@ -97,4 +98,4 @@ class BlockChain:
             witnesses=(self.proposer.public_account(),),
             transactions=self.pending_transactions,
         )
-        self.append(new_block)
+        return self.append(new_block)
