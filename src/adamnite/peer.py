@@ -97,12 +97,16 @@ class ConnectedPeer:
         assert len(message_byte) == size
         if message.query == SELECT_ALL:
             response = Response(payload=self.node.block_chain.chain)
-        else:
-            blocks = [
-                self.node.block_chain.chain[height]
-                for height in message.query
-            ]
-            response = Response(payload=blocks)
+            self.writer.write(serialize(response))
+            return
+        blocks = []
+        for height in message.query:
+            if height <= self.node.block_chain.height:
+                blocks.append(self.node.block_chain.chain[height])
+            elif self.node.block_chain.height < height:
+                blocks.append(self.node.block_chain.chain[-1])
+                break
+        response = Response(payload=blocks)
         self.writer.write(serialize(response))
 
     def request_blocks(self, query=SELECT_ALL):

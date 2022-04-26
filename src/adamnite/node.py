@@ -66,14 +66,17 @@ class Node:
 
     async def mint(self):
         self.block_chain.mint()
-        response = Response(payload=self.block_chain.chain)
+        response = Response(payload=(self.block_chain.chain[-1],))
         self.broadcast(serialize(response))
         await asyncio.sleep(3)
         self.loop.create_task(self.mint())
 
     async def synchronize(self):
+        height = self.block_chain.height
+        new_blocks_height = list(range(height, height + 100))
         for peer in self.connected_peers:
             peer.request_connected_peers()
+            peer.request_blocks(query=new_blocks_height)
             peer.request_transactions()
         logger.info(f'Currently Connected {len(self.connected_peers)}')
         logger.info(

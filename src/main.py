@@ -4,7 +4,7 @@ import os
 from adamnite.node import Node
 
 if __name__ == '__main__':
-    port = 6109
+    port = 6101
     if "PORT" in os.environ:
         port = int(os.environ['PORT'])
     node = Node(port=port)
