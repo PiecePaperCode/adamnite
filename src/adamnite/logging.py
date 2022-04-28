@@ -7,6 +7,6 @@ formatter = logging.Formatter(
 logger = logging.getLogger(name)
 logger.setLevel(logging.DEBUG)
 console = logging.StreamHandler()
-console.setLevel(logging.DEBUG)
+console.setLevel(logging.WARNING)
 console.setFormatter(formatter)
 logger.addHandler(console)

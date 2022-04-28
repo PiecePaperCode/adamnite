@@ -2,3 +2,5 @@ secp256k1~=0.14.0
 base58~=2.1.1
 keyring~=23.5.0
 pycryptodome
+aioconsole~=0.4.1
+rich~=12.3.0
