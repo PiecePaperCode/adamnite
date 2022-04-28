@@ -38,10 +38,11 @@ class ConnectedPeer:
     async def incoming(self):
         try:
             await self.receive()
-        except (BrokenPipeError, ConnectionError, AssertionError) as e:
+            await self.writer.drain()
+        except (BrokenPipeError, ConnectionError, AssertionError, TimeoutError):
             self.connected = False
-            # self.node.remove_not_connected_peers()
-            logger.info(f"Disconnected {self.ip} {self.port} {e}")
+            self.node.remove_not_connected_peers()
+            logger.info(f"Disconnected {self.ip} {self.port}")
             return
         self.node.loop.create_task(self.incoming())
 
@@ -49,7 +50,7 @@ class ConnectedPeer:
         size_byte = await self.reader.read(INT_SIZE)
         size, _ = from_number(size_byte, int())
         payload = await asyncio.wait_for(
-            self.reader.read(size),
+            self.reader.readexactly(size),
             timeout=TIMEOUT
         )
         assert len(payload) == size
