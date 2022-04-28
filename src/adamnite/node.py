@@ -23,11 +23,11 @@ class Node:
         self.block_chain: BlockChain = BlockChain()
         self.wallet: Wallet = Wallet(self.block_chain)
         self.loop = asyncio.get_event_loop()
+
+    async def start_serving(self):
         self.loop.create_task(self.connect())
         self.loop.create_task(self.mint())
         self.loop.create_task(self.synchronize())
-
-    async def start_serving(self):
         logger.info("Start Serving")
         server = await asyncio.start_server(self.accept, sock=self.sock)
         await server.serve_forever()
@@ -65,15 +65,15 @@ class Node:
         self.loop.create_task(self.connect())
 
     async def mint(self):
-        self.block_chain.mint()
-        response = Response(payload=(self.block_chain.chain[-1],))
-        self.broadcast(serialize(response))
-        await asyncio.sleep(3)
+        if self.block_chain.mint():
+            response = Response(payload=(self.block_chain.chain[-1],))
+            self.broadcast(serialize(response))
+        await asyncio.sleep(1)
         self.loop.create_task(self.mint())
 
     async def synchronize(self):
         height = self.block_chain.height
-        new_blocks_height = list(range(height, height + 100))
+        new_blocks_height = list(range(height, height + 10))
         for peer in self.connected_peers:
             peer.request_connected_peers()
             peer.request_blocks(query=new_blocks_height)

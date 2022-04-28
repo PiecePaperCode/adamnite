@@ -48,20 +48,18 @@ class TestNode(unittest.TestCase):
         node2.peers.add(Peer('::ffff:127.0.0.1', PORT))
         node2.block_chain = BlockChain(GENESIS_ACCOUNT, GENESIS_BLOCK)
         receiver = PrivateAccount()
-        node2.block_chain.pending_transactions.append(
-            Transaction(
-                sender=GENESIS_ACCOUNT,
-                receiver=receiver.public_account(),
-                amount=1
+
+        async def create_transactions():
+            node2.block_chain.pending_transactions.append(
+                Transaction(
+                    sender=GENESIS_ACCOUNT,
+                    receiver=receiver.public_account(),
+                    amount=1
+                )
             )
-        )
-        node2.block_chain.pending_transactions.append(
-            Transaction(
-                sender=GENESIS_ACCOUNT,
-                receiver=receiver.public_account(),
-                amount=1
-            )
-        )
+            await asyncio.sleep(1)
+            self.loop.create_task(create_transactions())
+        self.loop.create_task(create_transactions())
         self.loop.create_task(node2.start_serving())
         port3 = random.randint(6300, 6400)
         node3 = Node(port3)
@@ -72,16 +70,20 @@ class TestNode(unittest.TestCase):
         node4 = Node(port4)
         node4.peers.add(Peer('::ffff:127.0.0.1', port3))
         node4.block_chain = BlockChain(PrivateAccount(), GENESIS_BLOCK)
-        self.loop.create_task(node4.start_serving())
+
+        async def wait():
+            await asyncio.sleep(1)
+            self.loop.create_task(node4.start_serving())
+        self.loop.create_task(wait())
 
         async def until():
-            while len(self.node.connected_peers) < 3:
+            while node4.block_chain.height < 3:
                 await asyncio.sleep(0.5)
 
-        self.loop.run_until_complete(asyncio.wait_for(until(), 20))
-        self.assertEqual(1, node4.block_chain.height)
+        self.loop.run_until_complete(asyncio.wait_for(until(), 10))
+        self.assertGreaterEqual(node4.block_chain.height, 3)
         self.assertEqual(0, len(node2.block_chain.pending_transactions))
-        self.assertGreater(len(node4.connected_peers), 2)
+        self.assertGreaterEqual(len(node3.connected_peers), 2)
 
 
 async def connect(port=6101):

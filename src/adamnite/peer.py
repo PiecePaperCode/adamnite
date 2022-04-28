@@ -40,7 +40,7 @@ class ConnectedPeer:
             await self.receive()
         except (BrokenPipeError, ConnectionError, AssertionError):
             self.connected = False
-            self.node.remove_not_connected_peers()
+            # self.node.remove_not_connected_peers()
             logger.info(f"Disconnected {self.ip} {self.port}")
             return
         self.node.loop.create_task(self.incoming())
