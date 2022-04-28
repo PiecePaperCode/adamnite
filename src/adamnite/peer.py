@@ -39,7 +39,10 @@ class ConnectedPeer:
         try:
             await self.receive()
             await self.writer.drain()
-        except (BrokenPipeError, ConnectionError, AssertionError, TimeoutError):
+        except (
+                BrokenPipeError, ConnectionError,
+                AssertionError, asyncio.TimeoutError
+        ):
             self.connected = False
             self.node.remove_not_connected_peers()
             logger.info(f"Disconnected {self.ip} {self.port}")
