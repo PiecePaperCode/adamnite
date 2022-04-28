@@ -55,10 +55,11 @@ class TestMessages(unittest.TestCase):
             payload=(self.block,)
         )
         message_bytes = serialize(message)
-        restored_message, _ = deserialize(
+        restored_message, size = deserialize(
             from_=message_bytes,
             to=message
         )
+        assert len(message_bytes) == size
         self.assertEqual(0, restored_message.payload[0].height)
 
     def test_peer_message(self):
@@ -118,6 +119,13 @@ class TestMessages(unittest.TestCase):
                 blocks.append(new_block)
                 previous_hash = new_block.block_hash
             response = Response(blocks)
+            response, read = deserialize(
+                serialize(response),
+                Response(
+                    payload=(self.block,)
+                )
+            )
+            assert read == response.size + INT_SIZE
             writer.write(serialize(response))
             await writer.drain()
             while self.node.block_chain.height != 98:
