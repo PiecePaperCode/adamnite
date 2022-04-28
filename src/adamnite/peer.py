@@ -38,10 +38,10 @@ class ConnectedPeer:
     async def incoming(self):
         try:
             await self.receive()
-        except (BrokenPipeError, ConnectionError, AssertionError):
+        except (BrokenPipeError, ConnectionError, AssertionError) as e:
             self.connected = False
             # self.node.remove_not_connected_peers()
-            logger.info(f"Disconnected {self.ip} {self.port}")
+            logger.info(f"Disconnected {self.ip} {self.port} {e}")
             return
         self.node.loop.create_task(self.incoming())
 
