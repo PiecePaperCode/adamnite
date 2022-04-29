@@ -59,14 +59,13 @@ work on the Repo you need have given acces by the Adamnite Team.
 
 ## Usage
 
-Currently, the project is "not working software".
-
 ### Start Software
 
 ```sh
 cd src
 python main.py
 ```
+![cli_client.png](/doc/cli_client.png)
 
 ### Run all tests
 
