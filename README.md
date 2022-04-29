@@ -65,8 +65,17 @@ work on the Repo you need have given acces by the Adamnite Team.
 cd src
 python main.py
 ```
+You will be greeted with an CLI interface running on your Terminal.
+
 ![cli_client.png](/doc/cli_client.png)
 
+### Send a Transaction
+1. Press 1 + Enter
+2. Type in the amount and press Enter
+3. Type in the receiver address or copy and paste it and type Enter
+4. If everything is fine press 1 or abord with 9 and confirm with Enter
+
+## Tests
 ### Run all tests
 
 ```sh
