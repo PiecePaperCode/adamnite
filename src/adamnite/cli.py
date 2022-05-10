@@ -45,14 +45,17 @@ class CommandLine:
         self.loop.create_task(self.transaction_sender())
 
     async def update_stats(self):
-        with Live(self.layout, refresh_per_second=1):
+        with Live(
+                self.layout,
+                refresh_per_second=1,
+        ):
             while True:
                 self.layout["main"].split(
                     Text(f"Balance {self.wallet.balance()}"),
                     Text(f"Connections {len(self.node.connected_peers)}"),
                     Text(f"Block Height {self.node.block_chain.height}"),
                 )
-                await asyncio.sleep(1)
+                await asyncio.sleep(5)
 
     async def transaction_sender(self):
         self.layout['sender'].split(
@@ -86,4 +89,5 @@ class CommandLine:
                 amount=int(amount)
             )
         )
+        Wallet().export_wallet('resources/wallet.nite')
         self.loop.create_task(self.transaction_sender())

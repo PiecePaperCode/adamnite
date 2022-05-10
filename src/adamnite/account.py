@@ -1,7 +1,7 @@
 import os
 import base58
-import keyring
 
+from os.path import exists
 from adamnite.crypto import secp256k1
 from adamnite.serialization import deserialize, serialize
 
@@ -34,21 +34,18 @@ class PublicAccount:
 class Wallet:
     def __init__(self, block_chain=None):
         self.block_chain = block_chain
-    accounts = []
-    service_name = "PyAdamnite"
-    username = 'wallet'
-    if keyring.get_password('PyAdamnite', 'wallet'):
-        accounts, size = deserialize(
-            bytes.fromhex(keyring.get_password(service_name, username)),
-            [PrivateAccount()]
-        )
+    accounts: list[PrivateAccount] = []
+
+    if exists('resources/wallet.nite'):
+        with open('resources/wallet.nite', 'rb') as wallet:
+            accounts, read = deserialize(wallet.read(), [PrivateAccount()])
     else:
-        accounts: list[PrivateAccount] = [PrivateAccount() for i in range(100)]
-        keyring.set_password(
-            service_name,
-            username,
-            serialize(accounts).hex()
-        )
+        accounts = [
+            PrivateAccount()
+            for i in range(2)
+        ]
+        with open('resources/wallet.nite', 'wb') as wallet:
+            wallet.write(serialize(accounts))
 
     def balance(self) -> int:
         if self.block_chain is None:
@@ -70,6 +67,3 @@ class Wallet:
                 wallet.read(),
                 [PrivateAccount()]
             )
-
-    def delete_wallet(self):
-        keyring.delete_password(self.service_name, self.username)
