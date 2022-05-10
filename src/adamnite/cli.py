@@ -47,7 +47,7 @@ class CommandLine:
     async def update_stats(self):
         with Live(
                 self.layout,
-                refresh_per_second=1,
+                refresh_per_second=0.1,
         ):
             while True:
                 self.layout["main"].split(
@@ -55,7 +55,7 @@ class CommandLine:
                     Text(f"Connections {len(self.node.connected_peers)}"),
                     Text(f"Block Height {self.node.block_chain.height}"),
                 )
-                await asyncio.sleep(5)
+                await asyncio.sleep(10)
 
     async def transaction_sender(self):
         self.layout['sender'].split(
