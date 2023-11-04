@@ -48,4 +48,5 @@ class TestTransaction(unittest.TestCase):
             fee=1,
             message=b'Test Transaction'
         )
+        transaction2.nonce = 1
         self.assertTrue(self.transaction == transaction2)
