@@ -4,16 +4,18 @@
     font-style: normal;
     font-weight: 300;">
 <div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="https://adamnite.org/logo.svg" alt="Logo" width="80" height="80">
-  </a>
+  <div style="background-color: #ffc0c0; color: black; padding: 1rem; border-radius: 1rem;">
+   <h1 style="padding: 0;">Disclaimer:</h1>
+   <p style="color: black">
+      Official Adamnite has beed discontinued recently. So I publish my current implementation
+      of my work performed for Adamnite. This project will be continued as my private
+      Project.
+   </p>
+  </div>
   <h3 align="center">PyAdamnite</h3>
    <p align="center">
       Adamnite's implementation in Python
    </p>
-   <b align="center">
-      This is primarily a high-level implementation intended for protocol research.
-   </b>
 </div>
 
 ## About The Project
