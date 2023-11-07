@@ -31,6 +31,9 @@ class Transaction:
         valid = validate(public_key, self.signature, serialized_header)
         return valid
 
+    def is_staking(self) -> bool:
+        return self.sender == self.receiver
+
     def sign(self, private_key) -> bytes:
         serialized_header = serialize(self.header())
         signature = sign(private_key, serialized_header)

@@ -52,4 +52,5 @@ ADAMNITE_GENESIS_BLOCK, size = deserialize(
     b"\xca\xc9\xa6\t!RD\xc9,\xda\x05<\xd0V",
     ADAMNITE_GENESIS_BLOCK,
     )
+ADAMNITE_GENESIS_BLOCK: Block = deepcopy(GENESIS_BLOCK)  # for development
 assert ADAMNITE_GENESIS_BLOCK.valid()
